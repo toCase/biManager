@@ -1,0 +1,53 @@
+name: Build for Windows
+
+on:
+    push:
+      branches: [ main ]
+      paths-ignore: ['**']
+      tags: ['v*']
+    pull_request:
+      branches: [ main ]
+    workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Qt
+      uses: jurplel/setup-qt-action@v3
+      with:
+        version: '6.8.0'
+        host: windows
+        modules: 'qtbase qtquickcontrols2 qtwebsockets qtsql qttools'
+
+    - name: Configure project with CMake
+      run: |
+        cmake -B build -S . ^
+          -DCMAKE_PREFIX_PATH=%Qt6_DIR% ^
+          -DCMAKE_BUILD_TYPE=Release ^
+          -DCMAKE_INSTALL_PREFIX=install
+
+    - name: Build project
+      run: cmake --build build --config Release --target all
+
+    - name: Install project
+      run: cmake --install build --config Release
+
+    - name: Run windeployqt
+      run: |
+        set PATH=%Qt6_DIR%\bin;%PATH%
+        "%Qt6_DIR%\bin\windeployqt.exe" --qmldir QML build\install\bin
+
+    - name: Package QML files
+      run: |
+        xcopy /E /I QML build\install\bin\qml
+
+    - name: Archive build
+      uses: actions/upload-artifact@v3
+      with:
+        name: qt-project
+        path: build/install

@@ -35,6 +35,7 @@ jobs:
         python -m aqt install-qt windows desktop 6.8.0 win64_msvc2022_64 -m qtwebsockets qtconnectivity
 
     - name: Configure project with CMake
+      shell: cmd
       run: |
         cmake -B build -S . ^
           -DCMAKE_PREFIX_PATH=%Qt6_DIR% ^
@@ -42,17 +43,21 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=install
 
     - name: Build project
+      shell: cmd
       run: cmake --build build --config Release --target all
 
     - name: Install project
+      shell: cmd
       run: cmake --install build --config Release
 
     - name: Run windeployqt
+      shell: cmd
       run: |
         set PATH=%Qt6_DIR%\bin;%PATH%
         "%Qt6_DIR%\bin\windeployqt.exe" --qmldir QML build\install\bin
 
     - name: Package QML files
+      shell: cmd
       run: |
         xcopy /E /I QML build\install\bin\qml
 

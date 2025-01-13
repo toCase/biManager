@@ -32,15 +32,13 @@ jobs:
     - name: Install Qt
       shell: bash
       run: |
-        python -m aqt install-qt --outputdir ${{github.workspace}}/Qt windows desktop 6.8.0 win64_msvc2022_64 -m qtwebsockets qtconnectivity
+        python -m aqt install-qt --outputdir ${{github.workspace}}\Qt windows desktop 6.8.0 win64_msvc2022_64 -m qtwebsockets qtconnectivity
 
     - name: Configure project with CMake
       shell: cmd
-      env:
-        Qt6_DIR: ${{github.workspace}}\Qt\6.8.0\msvc2022_64
       run: |
         cmake -B build -S . ^
-        -DCMAKE_PREFIX_PATH="%Qt6_DIR%" ^
+        -DCMAKE_PREFIX_PATH="${{github.workspace}}\Qt\6.8.0\msvc2022_64" ^
         -DCMAKE_BUILD_TYPE=Release ^
         -DCMAKE_INSTALL_PREFIX=install
   
@@ -54,10 +52,8 @@ jobs:
   
     - name: Run windeployqt
       shell: cmd
-      env:
-        Qt6_DIR: ${{github.workspace}}\Qt\6.8.0\msvc2022_64
       run: |
-        "%Qt6_DIR%\bin\windeployqt.exe" --qmldir QML build\install\bin
+        "${{github.workspace}}\Qt\6.8.0\msvc2022_64\bin\windeployqt.exe" --qmldir QML build\install\bin
   
     - name: Archive build
       uses: actions/upload-artifact@v3

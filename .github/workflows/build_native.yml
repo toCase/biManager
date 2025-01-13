@@ -39,17 +39,17 @@ jobs:
             qt_version: '6.8.0'
             platform: linux
             arch: gcc_64
-            qt_dir: ${{ github.workspace }}/Qt
-          # - os: windows-latest
-          #   qt_version: '6.8.0'
-          #   platform: windows
-          #   arch: win64_msvc2019_64
-          #   qt_dir: ${{ github.workspace }}/Qt
-          # - os: macos-latest
-          #   qt_version: '6.8.0'
-          #   platform: mac
-          #   arch: clang_64
-          #   qt_dir: ${{ github.workspace }}/Qt
+            # qt_dir: ${{ github.workspace }}/Qt
+          - os: windows-latest
+            qt_version: '6.8.0'
+            platform: windows
+            arch: win64_msvc2019_64
+            # qt_dir: ${{ github.workspace }}/Qt
+          - os: macos-latest
+            qt_version: '6.8.0'
+            platform: mac
+            arch: clang_64
+            # qt_dir: ${{ github.workspace }}/Qt
 
     runs-on: ${{ matrix.os }}
 
@@ -162,13 +162,13 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: |
-        ${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/windeployqt.exe Release/*.exe --qmldir ../src/QML
+        ${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/windeployqt.exe Release/*.exe --qmldir ../src/QML
 
     - name: Package (MacOS)
       if: matrix.os == 'macos-latest'
       working-directory: ${{github.workspace}}/build
       run: |
-        ${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/macdeployqt *.app -qmldir=../src/QML -dmg
+        ${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/macdeployqt *.app -qmldir=../src/QML -dmg
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3

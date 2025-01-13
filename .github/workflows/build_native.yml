@@ -32,21 +32,23 @@ jobs:
       startsWith(github.ref, 'refs/tags/v')
     
     strategy:
-      fail-fast: false  # Продолжать сборку для других ОС при ошибке
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
             qt_version: '6.8.0'
-            qt_arch: gcc_64
+            platform: linux
+            arch: gcc_64
             qt_dir: ${{ github.workspace }}/Qt
           - os: windows-latest
             qt_version: '6.8.0'
-            qt_arch: win64_msvc2019_64
+            platform: windows
+            arch: win64_msvc2019_64
             qt_dir: ${{ github.workspace }}/Qt
           - os: macos-latest
             qt_version: '6.8.0'
-            qt_arch: clang_64
+            platform: mac
+            arch: clang_64
             qt_dir: ${{ github.workspace }}/Qt
 
     runs-on: ${{ matrix.os }}
@@ -54,33 +56,37 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # Установка зависимостей для Linux
     - name: Install Linux Dependencies
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev
 
-    # Установка Qt с использованием aqtinstall
+    # Установка Python и aqtinstall
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install aqtinstall
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install aqtinstall
+
+    # Отладочный вывод доступных модулей
+    - name: List available Qt modules
+      run: |
+        python -m aqt list-qt ${{ matrix.platform }} desktop --modules ${{ matrix.qt_version }} ${{ matrix.arch }}
+
+    # Установка Qt
     - name: Install Qt
       run: |
-        python -m pip install aqtinstall
-        python -m aqt install-qt -O ${{ matrix.qt_dir }} linux desktop ${{ matrix.qt_version }} gcc_64 -m qtdeclarative qtquickcontrols2
-      if: matrix.os == 'ubuntu-latest'
+        python -m aqt install-qt \
+          ${{ matrix.platform }} desktop \
+          ${{ matrix.qt_version }} ${{ matrix.arch }} \
+          --outputdir ${{ matrix.qt_dir }} \
+          --modules qtdeclarative qtquick qtquickcontrols2
 
-    - name: Install Qt (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        python -m pip install aqtinstall
-        python -m aqt install-qt -O ${{ matrix.qt_dir }} windows desktop ${{ matrix.qt_version }} win64_msvc2019_64 -m qtdeclarative qtquickcontrols2
-
-    - name: Install Qt (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        python -m pip install aqtinstall
-        python -m aqt install-qt -O ${{ matrix.qt_dir }} mac desktop ${{ matrix.qt_version }} clang_64 -m qtdeclarative qtquickcontrols2
-
-    # Вывод отладочной информации
     - name: Debug Qt Installation
       run: |
         echo "Qt installation directory contents:"
@@ -95,16 +101,16 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: |
-        export Qt6_DIR="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.qt_arch }}/lib/cmake/Qt6"
-        cmake .. -DCMAKE_BUILD_TYPE=Release -A x64 -DCMAKE_PREFIX_PATH="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.qt_arch }}"
+        export Qt6_DIR="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}/lib/cmake/Qt6"
+        cmake .. -DCMAKE_BUILD_TYPE=Release -A x64 -DCMAKE_PREFIX_PATH="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
 
     - name: Configure CMake (Unix)
       if: matrix.os != 'windows-latest'
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: |
-        export Qt6_DIR="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.qt_arch }}/lib/cmake/Qt6"
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.qt_arch }}"
+        export Qt6_DIR="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}/lib/cmake/Qt6"
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
 
     - name: Build
       working-directory: ${{github.workspace}}/build
@@ -116,13 +122,13 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: |
-        ${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.qt_arch }}/bin/windeployqt.exe Release/*.exe --qmldir ../src/QML
+        ${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/windeployqt.exe Release/*.exe --qmldir ../src/QML
 
     - name: Package (MacOS)
       if: matrix.os == 'macos-latest'
       working-directory: ${{github.workspace}}/build
       run: |
-        ${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.qt_arch }}/bin/macdeployqt *.app -qmldir=../src/QML -dmg
+        ${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/macdeployqt *.app -qmldir=../src/QML -dmg
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3

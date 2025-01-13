@@ -17,13 +17,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v4
+    # Установка Python и aqtinstall
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        version: '6.8.0'
-        host: windows
-        arch: win64_msvc2019_64
-        modules: qtwebsockets qtconnectivity
+        python-version: '3.11'
+
+    - name: Install aqtinstall
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install aqtinstall
+
+    # Установка Qt
+    - name: Install Qt
+      shell: bash
+      run: |
+        python3 -m aqt install-qt ${{ matrix.platform }} desktop ${{ matrix.qt_version }} -m qtwebsockets qtconnectivity
 
     - name: Configure project with CMake
       run: |

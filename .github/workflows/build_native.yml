@@ -79,15 +79,25 @@ jobs:
         python3 -m aqt list-qt ${{ matrix.platform }} desktop --arch ${{ matrix.qt_version }}
 
     # Установка Qt
-    - name: Install Qt
-      run: |
-        python3 -m aqt install-qt ${{ matrix.platform }} desktop ${{ matrix.qt_version }} gcc_64
+    # - name: Install Qt
+    #   run: |
+    #     python3 -m aqt install-qt ${{ matrix.platform }} desktop ${{ matrix.qt_version }} gcc_64
 
-    - name: Debug Qt Installation
-      run: |
-        echo "Qt installation directory contents:"
-        ls -R ${{ matrix.qt_dir }}
-      shell: bash
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.0'
+        host: 'linux'
+        target: 'desktop'
+        arch: 'gcc_64'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+          
+    # - name: Debug Qt Installation
+    #   run: |
+    #     echo "Qt installation directory contents:"
+    #     ls -R ${{ matrix.qt_dir }}
+    #   shell: bash
 
     - name: Create Build Directory
       run: cmake -E make_directory ${{github.workspace}}/build

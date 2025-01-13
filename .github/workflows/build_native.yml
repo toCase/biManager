@@ -81,7 +81,7 @@ jobs:
     # Установка Qt
     - name: Install Qt
       run: |
-        python3 -m aqt install-qt ${{ matrix.platform }} desktop ${{ matrix.qt_version }} 
+        python3 -m aqt install-qt --outputdir ${{ matrix.qt_dir }} ${{ matrix.platform }} desktop ${{ matrix.qt_version }} 
 
           
     # - name: Debug Qt Installation

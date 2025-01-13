@@ -83,9 +83,7 @@ jobs:
       run: |
         python -m aqt install-qt \
           ${{ matrix.platform }} desktop \
-          ${{ matrix.qt_version }} ${{ matrix.arch }} \
-          --outputdir ${{ matrix.qt_dir }} \
-          # --modules qtdeclarative qtquick qtquickcontrols2
+          ${{ matrix.qt_version }} 
 
     - name: Debug Qt Installation
       run: |

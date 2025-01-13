@@ -92,7 +92,7 @@ jobs:
     - name: Install Qt
       shell: bash
       run: |
-        python3 -m aqt install-qt --outputdir ${{ env.QT_DIR }} -m ${{ matrix.platform }} desktop ${{ matrix.qt_version }} qtbase qtdeclarative qtwebsockets qtquick qtsql qtnetwork qtconnectivity
+        python3 -m aqt install-qt --outputdir ${{ env.QT_DIR }} ${{ matrix.platform }} desktop ${{ matrix.qt_version }} -m qtbase qtdeclarative qtwebsockets qtquick qtsql qtnetwork qtconnectivity
 
           
     - name: Debug Qt Installation

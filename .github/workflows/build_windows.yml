@@ -37,7 +37,6 @@ jobs:
     - name: Configure project with CMake
       shell: cmd
       run: |
-        echo %Qt6_DIR%
         cmake -B build -S . ^
           -DCMAKE_PREFIX_PATH=${{github.workspace}}\Qt ^
           -DCMAKE_BUILD_TYPE=Release ^

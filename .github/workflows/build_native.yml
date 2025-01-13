@@ -87,8 +87,7 @@ jobs:
         python -m aqt install-qt \
           --outputdir "${{ env.QT_DIR }}" \
           ${{ matrix.platform }} desktop \
-          ${{ matrix.qt_version }} \
-          ${{ matrix.arch }} \
+          ${{ matrix.qt_version }} \          
           -m qtwebsockets qtconnectivity
 
     - name: Create Build Directory

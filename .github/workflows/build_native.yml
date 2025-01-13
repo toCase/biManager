@@ -73,22 +73,34 @@ jobs:
         python3 -m pip install --upgrade pip
         python3 -m pip install aqtinstall
 
-    # Отладочный вывод доступных модулей
+    # Создаем директорию для Qt с правильными правами
+    - name: Prepare Qt installation directory
+      shell: bash
+      run: |
+        QT_DIR=${{github.workspace}}/Qt
+        mkdir -p "$QT_DIR"
+        chmod 777 "$QT_DIR"
+        echo "QT_DIR=$QT_DIR" >> $GITHUB_ENV
+
+     # Отладочный вывод доступных модулей
     - name: List available Qt modules
+      shell: bash
       run: |
         python3 -m aqt list-qt ${{ matrix.platform }} desktop --arch ${{ matrix.qt_version }}
 
     # Установка Qt
     - name: Install Qt
+      shell: bash
       run: |
-        python3 -m aqt install-qt --outputdir ${{ matrix.qt_dir }} ${{ matrix.platform }} desktop ${{ matrix.qt_version }} 
+        python3 -m aqt install-qt --outputdir ${{ env.QT_DIR }} ${{ matrix.platform }} desktop ${{ matrix.qt_version }} 
 
           
-    # - name: Debug Qt Installation
-    #   run: |
-    #     echo "Qt installation directory contents:"
-    #     ls -R ${{ matrix.qt_dir }}
-    #   shell: bash
+    - name: Debug Qt Installation
+      shell: bash
+      run: |
+        echo "Qt installation directory contents:"
+        ls -R ${{ matrix.qt_dir }}
+      
 
     - name: Create Build Directory
       run: cmake -E make_directory ${{github.workspace}}/build

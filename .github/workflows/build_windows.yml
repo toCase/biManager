@@ -32,14 +32,14 @@ jobs:
     - name: Install Qt
       shell: bash
       run: |
-        python -m aqt install-qt windows desktop 6.8.0 win64_msvc2022_64 -m qtwebsockets qtconnectivity
+        python -m aqt install-qt --outputdir ${{github.workspace}}\Qt windows desktop 6.8.0 win64_msvc2022_64 -m qtwebsockets qtconnectivity
 
     - name: Configure project with CMake
       shell: cmd
       run: |
         echo %Qt6_DIR%
         cmake -B build -S . ^
-          -DCMAKE_PREFIX_PATH=%Qt6_DIR% ^
+          -DCMAKE_PREFIX_PATH=${{github.workspace}}\Qt ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DCMAKE_INSTALL_PREFIX=install
 
@@ -54,8 +54,7 @@ jobs:
     - name: Run windeployqt
       shell: cmd
       run: |
-        set PATH=%Qt6_DIR%\bin;%PATH%
-        "%Qt6_DIR%\bin\windeployqt.exe" --qmldir QML build\install\bin
+        "${{github.workspace}}\Qt\bin\windeployqt.exe" --qmldir QML build\install\bin
 
     - name: Package QML files
       shell: cmd

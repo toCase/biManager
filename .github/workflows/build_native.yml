@@ -124,7 +124,38 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
-      run: cmake --build . --config Release
+      run: |
+        cmake --build . --config Release
+        # Показать содержимое build директории для отладки
+        echo "Build directory contents:"
+        ls -R
+
+    - name: Package (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: |
+        # Создаем директорию для развертывания
+        mkdir -p AppDir/usr/bin
+        mkdir -p AppDir/usr/lib
+        
+        # Копируем исполняемый файл
+        # Замените 'YourExecutableName' на реальное имя вашего исполняемого файла
+        cp biManager AppDir/usr/bin/
+        
+        # Копируем необходимые библиотеки Qt
+        cp -r ${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/lib/*.so* AppDir/usr/lib/
+        
+        # Копируем QML модули если они используются
+        mkdir -p AppDir/usr/qml
+        cp -r ${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/qml/* AppDir/usr/qml/
+        
+        # Показать структуру AppDir для отладки
+        echo "AppDir contents:"
+        ls -R AppDir/
+        
+        # Создаем архив
+        tar -czf biManager-linux.tar.gz AppDir/
 
     - name: Package (Windows)
       if: matrix.os == 'windows-latest'
@@ -147,5 +178,6 @@ jobs:
           ${{github.workspace}}/build/**/*.exe
           ${{github.workspace}}/build/**/*.app
           ${{github.workspace}}/build/**/*.dmg
-          ${{github.workspace}}/build/**/*.so
-          ${{github.workspace}}/build/**/*.dll
+          ${{github.workspace}}/build/**/*.tar.gz
+          ${{github.workspace}}/build/biManager
+          ${{github.workspace}}/build/AppDir/**/*

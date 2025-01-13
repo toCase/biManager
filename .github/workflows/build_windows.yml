@@ -25,14 +25,14 @@ jobs:
 
     - name: Install aqtinstall
       run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install aqtinstall
+        python -m pip install --upgrade pip
+        python -m pip install aqtinstall
 
     # Установка Qt
     - name: Install Qt
       shell: bash
       run: |
-        python3 -m aqt install-qt ${{ matrix.platform }} desktop ${{ matrix.qt_version }} -m qtwebsockets qtconnectivity
+        python -m aqt install-qt windows desktop 6.8.0 -m qtwebsockets qtconnectivity
 
     - name: Configure project with CMake
       run: |

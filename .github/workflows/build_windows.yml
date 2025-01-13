@@ -37,6 +37,7 @@ jobs:
     - name: Configure project with CMake
       shell: cmd
       run: |
+        echo %Qt6_DIR%
         cmake -B build -S . ^
           -DCMAKE_PREFIX_PATH=%Qt6_DIR% ^
           -DCMAKE_BUILD_TYPE=Release ^

@@ -32,7 +32,7 @@ jobs:
     - name: Install Qt
       shell: bash
       run: |
-        python -m aqt install-qt windows desktop 6.8.0 -m qtwebsockets qtconnectivity
+        python -m aqt install-qt windows desktop 6.8.0 win64_msvc2022_64 -m qtwebsockets qtconnectivity
 
     - name: Configure project with CMake
       run: |

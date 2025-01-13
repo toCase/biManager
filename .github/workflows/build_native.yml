@@ -1,35 +1,10 @@
 name: Build Qt Project
 
 on:
-  push:
-    branches: [ main ]
-    tags: ['v*']
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  check-commit:
-    runs-on: ubuntu-latest
-    outputs:
-      should-run: ${{ steps.check.outputs.should-run }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: check
-        run: |
-          if echo "${{ github.event.head_commit.message }}" | grep -iE "\[build\]|\[release\]"; then
-            echo "should-run=true" >> $GITHUB_OUTPUT
-          else
-            echo "should-run=false" >> $GITHUB_OUTPUT
-          fi
-
   build:
-    needs: check-commit
-    if: |
-      needs.check-commit.outputs.should-run == 'true' ||
-      github.event_name == 'workflow_dispatch' ||
-      startsWith(github.ref, 'refs/tags/v')
-    
     strategy:
       fail-fast: false
       matrix:
@@ -37,15 +12,12 @@ jobs:
           - os: ubuntu-latest
             qt_version: '6.8.0'
             platform: linux
-            arch: gcc_64
           - os: windows-latest
             qt_version: '6.8.0'
             platform: windows
-            arch: win64_msvc2019_64
           - os: macos-latest
             qt_version: '6.8.0'
             platform: mac
-            arch: clang_64
 
     runs-on: ${{ matrix.os }}
     env:
@@ -77,18 +49,18 @@ jobs:
 
     - name: Install aqtinstall
       run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install aqtinstall
+        python -m pip install --upgrade pip
+        python -m pip install aqtinstall
 
     - name: Install Qt
       shell: bash
       run: |
         mkdir -p "${{ env.QT_DIR }}"
-        python3 -m aqt install-qt \
+        python -m aqt install-qt \
           --outputdir "${{ env.QT_DIR }}" \
           ${{ matrix.platform }} desktop \
-          ${{ matrix.qt_version }} \          
-          -m qtwebsockets qtconnectivity
+          ${{ matrix.qt_version }} \
+          -m all
 
     - name: Create Build Directory
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -102,7 +74,7 @@ jobs:
           -G "Visual Studio 17 2022" \
           -A x64 \
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-          -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
+          -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}"
 
     - name: Configure CMake (Unix)
       if: matrix.os != 'windows-latest'
@@ -111,7 +83,7 @@ jobs:
       run: |
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-          -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
+          -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}"
 
     - name: Build
       working-directory: ${{github.workspace}}/build
@@ -126,14 +98,14 @@ jobs:
       run: |
         mkdir deploy
         copy ${{ env.BUILD_TYPE }}\biManager.exe deploy\
-        "${{ env.QT_DIR }}\${{ matrix.qt_version }}\${{ matrix.arch }}\bin\windeployqt.exe" deploy\biManager.exe --release
+        "${{ env.QT_DIR }}\${{ matrix.qt_version }}\bin\windeployqt.exe" deploy\biManager.exe --release
         7z a -tzip biManager-windows.zip .\deploy\*
 
     - name: Package (MacOS)
       if: matrix.os == 'macos-latest'
       working-directory: ${{github.workspace}}/build
       run: |
-        "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/macdeployqt" biManager.app -dmg
+        "${{ env.QT_DIR }}/${{ matrix.qt_version }}/bin/macdeployqt" biManager.app -dmg
         mv biManager.dmg biManager-mac.dmg
 
     - name: Package (Linux)
@@ -145,7 +117,7 @@ jobs:
         
         # Copy required Qt libraries and plugins
         mkdir -p AppDir/usr/lib/qt/plugins
-        cp -r "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/plugins/"* AppDir/usr/lib/qt/plugins/
+        cp -r "${{ env.QT_DIR }}/${{ matrix.qt_version }}/plugins/"* AppDir/usr/lib/qt/plugins/
         
         # Create AppRun script
         cat > AppDir/AppRun << 'EOF'

@@ -40,16 +40,16 @@ jobs:
             platform: linux
             arch: gcc_64
             qt_dir: ${{ github.workspace }}/Qt
-          - os: windows-latest
-            qt_version: '6.8.0'
-            platform: windows
-            arch: win64_msvc2019_64
-            qt_dir: ${{ github.workspace }}/Qt
-          - os: macos-latest
-            qt_version: '6.8.0'
-            platform: mac
-            arch: clang_64
-            qt_dir: ${{ github.workspace }}/Qt
+          # - os: windows-latest
+          #   qt_version: '6.8.0'
+          #   platform: windows
+          #   arch: win64_msvc2019_64
+          #   qt_dir: ${{ github.workspace }}/Qt
+          # - os: macos-latest
+          #   qt_version: '6.8.0'
+          #   platform: mac
+          #   arch: clang_64
+          #   qt_dir: ${{ github.workspace }}/Qt
 
     runs-on: ${{ matrix.os }}
 
@@ -81,9 +81,7 @@ jobs:
     # Установка Qt
     - name: Install Qt
       run: |
-        python -m aqt install-qt \
-          ${{ matrix.platform }} desktop \
-          ${{ matrix.qt_version }} 
+        python -m aqt install-qt ${{ matrix.platform }} desktop ${{ matrix.qt_version }} gcc_64
 
     - name: Debug Qt Installation
       run: |

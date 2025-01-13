@@ -1,0 +1,121 @@
+name: Build Qt Project
+
+on:
+  push:
+    branches: [ main ]
+    # Запуск при коммите с определенным сообщением
+    paths-ignore: ['**']
+    tags: ['v*']  # Запуск для тегов, начинающихся с 'v'
+  pull_request:
+    branches: [ main ]
+
+  # Разрешаем ручной запуск из интерфейса GitHub
+  workflow_dispatch:
+
+jobs:
+  check-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.check.outputs.should-run }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if echo "${{ github.event.head_commit.message }}" | grep -iE "\[build\]|\[release\]"; then
+            echo "should-run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should-run=false" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: check-commit
+    if: |
+      needs.check-commit.outputs.should-run == 'true' ||
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.ref, 'refs/tags/v')
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            qt_version: '6.8.0'
+            qt_arch: gcc_64
+          - os: windows-latest
+            qt_version: '6.8.0'
+            qt_arch: win64_msvc2019_64
+          - os: macos-latest
+            qt_version: '6.8.0'
+            qt_arch: clang_64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: ${{ matrix.qt_version }}
+        arch: ${{ matrix.qt_arch }}
+        cache: true
+        modules: 'qtdeclarative qtquickcontrols2'  # Добавляем необходимые QML модули
+
+    - name: Install Additional Dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev
+
+    - name: Create Build Directory
+      run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Configure CMake (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake .. -DCMAKE_BUILD_TYPE=Release -A x64
+
+    - name: Configure CMake (Unix)
+      if: matrix.os != 'windows-latest'
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake .. -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --config Release
+
+    - name: Package (Windows)
+      if: matrix.os == 'windows-latest'
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: |
+        windeployqt.exe Release/*.exe --qmldir ../QML  # Укажите правильный путь к QML файлам
+
+    - name: Package (MacOS)
+      if: matrix.os == 'macos-latest'
+      working-directory: ${{github.workspace}}/build
+      run: |
+        macdeployqt *.app -qmldir=../QML -dmg  # Укажите правильный путь к QML файлам
+
+    - name: Package (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      working-directory: ${{github.workspace}}/build
+      run: |
+        # Создаем директорию для развертывания
+        mkdir -p AppDir
+        cp -r . AppDir/
+        # Используем linuxdeployqt или похожий инструмент если нужно
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-build
+        path: |
+          ${{github.workspace}}/build/**/*.exe
+          ${{github.workspace}}/build/**/*.app
+          ${{github.workspace}}/build/**/*.dmg
+          ${{github.workspace}}/build/**/*.so
+          ${{github.workspace}}/build/**/*.dll

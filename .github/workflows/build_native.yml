@@ -29,6 +29,7 @@ jobs:
     env:
       QT_DIR: ${{ github.workspace }}/Qt
       BUILD_TYPE: Release
+      APP_NAME: appTestBinance
 
     steps:
     - uses: actions/checkout@v4
@@ -69,14 +70,6 @@ jobs:
           ${{ matrix.arch }} \
           -m all
 
-    - name: Debug Qt Installation
-      shell: bash
-      run: |
-        echo "Qt installation directory contents:"
-        ls -la "${{ env.QT_DIR }}"
-        ls -la "${{ env.QT_DIR }}/${{ matrix.qt_version }}"
-        ls -la "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}" || true
-
     - name: Create Build Directory
       run: cmake -E make_directory ${{github.workspace}}/build
 
@@ -107,6 +100,17 @@ jobs:
       shell: bash
       run: cmake --build . --config ${{ env.BUILD_TYPE }} --parallel $(nproc)
 
+    - name: Debug Build Directory
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: |
+        echo "Build directory contents:"
+        ls -la
+        echo "Release directory contents (if exists):"
+        ls -la Release || true
+        echo "Debug directory contents (if exists):"
+        ls -la Debug || true
+
     # Packaging steps for each platform
     - name: Package (Windows)
       if: matrix.os == 'windows-latest'
@@ -114,23 +118,23 @@ jobs:
       shell: cmd
       run: |
         mkdir deploy
-        copy ${{ env.BUILD_TYPE }}\biManager.exe deploy\
-        "${{ env.QT_DIR }}\${{ matrix.qt_version }}\${{ matrix.qt_path }}\bin\windeployqt.exe" deploy\biManager.exe --release
-        7z a -tzip biManager-windows.zip .\deploy\*
+        copy ${{ env.BUILD_TYPE }}\${{ env.APP_NAME }}.exe deploy\
+        "${{ env.QT_DIR }}\${{ matrix.qt_version }}\${{ matrix.qt_path }}\bin\windeployqt.exe" deploy\${{ env.APP_NAME }}.exe --release
+        7z a -tzip ${{ env.APP_NAME }}-windows.zip .\deploy\*
 
     - name: Package (MacOS)
       if: matrix.os == 'macos-latest'
       working-directory: ${{github.workspace}}/build
       run: |
-        "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/bin/macdeployqt" biManager.app -dmg
-        mv biManager.dmg biManager-mac.dmg
+        "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/bin/macdeployqt" ${{ env.APP_NAME }}.app -dmg
+        mv ${{ env.APP_NAME }}.dmg ${{ env.APP_NAME }}-mac.dmg
 
     - name: Package (Linux)
       if: matrix.os == 'ubuntu-latest'
       working-directory: ${{github.workspace}}/build
       run: |
         mkdir -p AppDir/usr/{bin,lib,share}
-        cp biManager AppDir/usr/bin/
+        cp ${{ env.APP_NAME }} AppDir/usr/bin/
         
         # Copy required Qt libraries and plugins
         mkdir -p AppDir/usr/lib/qt/plugins
@@ -142,16 +146,16 @@ jobs:
         HERE="$(dirname "$(readlink -f "${0}")")"
         export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
         export QT_PLUGIN_PATH="${HERE}/usr/lib/qt/plugins"
-        exec "${HERE}/usr/bin/biManager" "$@"
+        exec "${HERE}/usr/bin/${{ env.APP_NAME }}" "$@"
         EOF
         chmod +x AppDir/AppRun
         
         # Create .desktop file
-        cat > AppDir/biManager.desktop << EOF
+        cat > AppDir/${{ env.APP_NAME }}.desktop << EOF
         [Desktop Entry]
-        Name=biManager
-        Exec=biManager
-        Icon=biManager
+        Name=${{ env.APP_NAME }}
+        Exec=${{ env.APP_NAME }}
+        Icon=${{ env.APP_NAME }}
         Type=Application
         Categories=Utility;
         EOF
@@ -161,13 +165,13 @@ jobs:
         wget -c "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
         chmod +x linuxdeploy*.AppImage
         
-        export OUTPUT="biManager-linux.AppImage"
+        export OUTPUT="${{ env.APP_NAME }}-linux.AppImage"
         ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: biManager-${{ matrix.platform }}
+        name: ${{ env.APP_NAME }}-${{ matrix.platform }}
         path: |
           ${{github.workspace}}/build/*.zip
           ${{github.workspace}}/build/*.dmg

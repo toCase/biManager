@@ -85,7 +85,7 @@ jobs:
           ${{ matrix.platform }} desktop \
           ${{ matrix.qt_version }} ${{ matrix.arch }} \
           --outputdir ${{ matrix.qt_dir }} \
-          --modules qtdeclarative qtquick qtquickcontrols2
+          # --modules qtdeclarative qtquick qtquickcontrols2
 
     - name: Debug Qt Installation
       run: |

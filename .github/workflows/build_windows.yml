@@ -17,12 +17,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Qt
-      uses: jurplel/setup-qt-action@v3
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
       with:
         version: '6.8.0'
         host: windows
-        modules: 'qtbase qtquickcontrols2 qtwebsockets qtsql qttools'
+        arch: win64_msvc2019_64
+        modules: qtbase qtquickcontrols2 qtwebsockets qtsql
 
     - name: Configure project with CMake
       run: |

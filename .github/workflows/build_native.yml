@@ -99,7 +99,7 @@ jobs:
       shell: bash
       run: |
         echo "Qt installation directory contents:"
-        ls -R ${{ matrix.qt_dir }}
+        ls -R ${{ env.QT_DIR }}
       
 
     - name: Create Build Directory
@@ -111,15 +111,15 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         export Qt6_DIR="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}/lib/cmake/Qt6"
-        cmake .. -DCMAKE_BUILD_TYPE=Release -A x64 -DCMAKE_PREFIX_PATH="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
+        cmake .. -DCMAKE_BUILD_TYPE=Release -A x64 -DCMAKE_PREFIX_PATH="${{  env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
 
     - name: Configure CMake (Unix)
       if: matrix.os != 'windows-latest'
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: |
-        export Qt6_DIR="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}/lib/cmake/Qt6"
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
+        export Qt6_DIR="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/lib/cmake/Qt6"
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
 
     - name: Build
       working-directory: ${{github.workspace}}/build

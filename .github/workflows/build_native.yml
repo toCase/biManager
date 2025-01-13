@@ -76,7 +76,7 @@ jobs:
     # Отладочный вывод доступных модулей
     - name: List available Qt modules
       run: |
-        python -m aqt list-qt ${{ matrix.platform }} desktop --modules ${{ matrix.qt_version }} ${{ matrix.arch }}
+        python -m aqt list-qt ${{ matrix.platform }} desktop --arch ${{ matrix.qt_version }} ${{ matrix.arch }}
 
     # Установка Qt
     - name: Install Qt

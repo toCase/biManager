@@ -77,14 +77,14 @@ jobs:
 
     - name: Install aqtinstall
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install aqtinstall
+        python3 -m pip install --upgrade pip
+        python3 -m pip install aqtinstall
 
     - name: Install Qt
       shell: bash
       run: |
         mkdir -p "${{ env.QT_DIR }}"
-        python -m aqt install-qt \
+        python3 -m aqt install-qt \
           --outputdir "${{ env.QT_DIR }}" \
           ${{ matrix.platform }} desktop \
           ${{ matrix.qt_version }} \          

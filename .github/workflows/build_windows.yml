@@ -1,13 +1,13 @@
 name: Build for Windows
 
 on:
-    push:
-      branches: [ main ]
-      paths-ignore: ['**']
-      tags: ['v*']
-    pull_request:
-      branches: [ main ]
-    workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths-ignore: ['**']
+    tags: ['v*']
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -32,29 +32,34 @@ jobs:
     - name: Install Qt
       shell: bash
       run: |
-        python -m aqt install-qt --outputdir ${{github.workspace}}\Qt windows desktop 6.8.0 win64_msvc2022_64 -m qtwebsockets qtconnectivity
+        python -m aqt install-qt --outputdir ${{github.workspace}}/Qt windows desktop 6.8.0 win64_msvc2022_64 -m qtwebsockets qtconnectivity
 
+    # Конфигурация проекта с CMake
     - name: Configure project with CMake
       shell: cmd
       run: |
         cmake -B build -S . ^
-        -DCMAKE_PREFIX_PATH="${{github.workspace}}\Qt\6.8.0\msvc2022_64" ^
+        -DCMAKE_PREFIX_PATH="%GITHUB_WORKSPACE%\Qt\6.8.0\msvc2022_64" ^
         -DCMAKE_BUILD_TYPE=Release ^
         -DCMAKE_INSTALL_PREFIX=install
-  
+
+    # Сборка проекта
     - name: Build project
       shell: cmd
       run: cmake --build build --config Release --target all
-  
+
+    # Установка проекта
     - name: Install project
       shell: cmd
       run: cmake --install build --config Release
-  
+
+    # Разворачивание с использованием windeployqt
     - name: Run windeployqt
       shell: cmd
       run: |
-        "${{github.workspace}}\Qt\6.8.0\msvc2022_64\bin\windeployqt.exe" --qmldir QML build\install\bin
-  
+        "%GITHUB_WORKSPACE%\Qt\6.8.0\msvc2022_64\bin\windeployqt.exe" --qmldir QML build\install\bin
+
+    # Архивирование результатов сборки
     - name: Archive build
       uses: actions/upload-artifact@v3
       with:

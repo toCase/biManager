@@ -3,7 +3,6 @@ name: Build Qt Project
 on:
   push:
     branches: [ main ]
-    paths-ignore: ['**']
     tags: ['v*']
   pull_request:
     branches: [ main ]
@@ -39,30 +38,38 @@ jobs:
             qt_version: '6.8.0'
             platform: linux
             arch: gcc_64
-            # qt_dir: ${{ github.workspace }}/Qt
           - os: windows-latest
             qt_version: '6.8.0'
             platform: windows
             arch: win64_msvc2019_64
-            # qt_dir: ${{ github.workspace }}/Qt
           - os: macos-latest
             qt_version: '6.8.0'
             platform: mac
             arch: clang_64
-            # qt_dir: ${{ github.workspace }}/Qt
 
     runs-on: ${{ matrix.os }}
+    env:
+      QT_DIR: ${{ github.workspace }}/Qt
+      BUILD_TYPE: Release
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Install Linux Dependencies
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev
+        sudo apt-get install -y build-essential libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev \
+        libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0
 
-    # Установка Python и aqtinstall
+    - name: Setup MSVC (Windows)
+      if: matrix.os == 'windows-latest'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -70,37 +77,19 @@ jobs:
 
     - name: Install aqtinstall
       run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install aqtinstall
+        python -m pip install --upgrade pip
+        python -m pip install aqtinstall
 
-    # Создаем директорию для Qt с правильными правами
-    - name: Prepare Qt installation directory
-      shell: bash
-      run: |
-        QT_DIR=${{github.workspace}}/Qt
-        mkdir -p "$QT_DIR"
-        chmod 777 "$QT_DIR"
-        echo "QT_DIR=$QT_DIR" >> $GITHUB_ENV
-
-     # Отладочный вывод доступных модулей
-    - name: List available Qt modules
-      shell: bash
-      run: |
-        python3 -m aqt list-qt ${{ matrix.platform }} desktop --arch ${{ matrix.qt_version }}
-
-    # Установка Qt
     - name: Install Qt
       shell: bash
       run: |
-        python3 -m aqt install-qt --outputdir ${{ env.QT_DIR }} ${{ matrix.platform }} desktop ${{ matrix.qt_version }} -m qtwebsockets qtconnectivity
-
-          
-    - name: Debug Qt Installation
-      shell: bash
-      run: |
-        echo "Qt installation directory contents:"
-        ls -R ${{ env.QT_DIR }}
-      
+        mkdir -p "${{ env.QT_DIR }}"
+        python -m aqt install-qt \
+          --outputdir "${{ env.QT_DIR }}" \
+          ${{ matrix.platform }} desktop \
+          ${{ matrix.qt_version }} \
+          ${{ matrix.arch }} \
+          -m qtwebsockets qtconnectivity qtnetworkauth qtshadertools
 
     - name: Create Build Directory
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -110,74 +99,88 @@ jobs:
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: |
-        export Qt6_DIR="${{ matrix.qt_dir }}/${{ matrix.qt_version }}/${{ matrix.arch }}/lib/cmake/Qt6"
-        cmake .. -DCMAKE_BUILD_TYPE=Release -A x64 -DCMAKE_PREFIX_PATH="${{  env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
+        cmake .. \
+          -G "Visual Studio 17 2022" \
+          -A x64 \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
 
     - name: Configure CMake (Unix)
       if: matrix.os != 'windows-latest'
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: |
-        export Qt6_DIR="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/lib/cmake/Qt6"
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
+        cmake .. \
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}"
 
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
-      run: |
-        cmake --build . --config Release
-        # Показать содержимое build директории для отладки
-        echo "Build directory contents:"
-        ls -R
+      run: cmake --build . --config ${{ env.BUILD_TYPE }} --parallel $(nproc)
 
-    - name: Package (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      working-directory: ${{github.workspace}}/build
-      shell: bash
-      run: |
-        # Создаем директорию для развертывания
-        mkdir -p AppDir/usr/bin
-        mkdir -p AppDir/usr/lib
-        
-        # Копируем исполняемый файл
-        # Замените 'YourExecutableName' на реальное имя вашего исполняемого файла
-        cp biManager AppDir/usr/bin/
-        
-        # Копируем необходимые библиотеки Qt
-        cp -r ${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/lib/*.so* AppDir/usr/lib/
-        
-        # Копируем QML модули если они используются
-        mkdir -p AppDir/usr/qml
-        cp -r ${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/qml/* AppDir/usr/qml/
-        
-        # Показать структуру AppDir для отладки
-        echo "AppDir contents:"
-        ls -R AppDir/
-        
-        # Создаем архив
-        tar -czf biManager-linux.tar.gz AppDir/
-
+    # Packaging steps for each platform
     - name: Package (Windows)
       if: matrix.os == 'windows-latest'
       working-directory: ${{github.workspace}}/build
-      shell: bash
+      shell: cmd
       run: |
-        ${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/windeployqt.exe Release/*.exe --qmldir ../src/QML
+        mkdir deploy
+        copy ${{ env.BUILD_TYPE }}\biManager.exe deploy\
+        "${{ env.QT_DIR }}\${{ matrix.qt_version }}\${{ matrix.arch }}\bin\windeployqt.exe" deploy\biManager.exe --release
+        7z a -tzip biManager-windows.zip .\deploy\*
 
     - name: Package (MacOS)
       if: matrix.os == 'macos-latest'
       working-directory: ${{github.workspace}}/build
       run: |
-        ${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/macdeployqt *.app -qmldir=../src/QML -dmg
+        "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/bin/macdeployqt" biManager.app -dmg
+        mv biManager.dmg biManager-mac.dmg
+
+    - name: Package (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      working-directory: ${{github.workspace}}/build
+      run: |
+        mkdir -p AppDir/usr/{bin,lib,share}
+        cp biManager AppDir/usr/bin/
+        
+        # Copy required Qt libraries and plugins
+        mkdir -p AppDir/usr/lib/qt/plugins
+        cp -r "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.arch }}/plugins/"* AppDir/usr/lib/qt/plugins/
+        
+        # Create AppRun script
+        cat > AppDir/AppRun << 'EOF'
+        #!/bin/bash
+        HERE="$(dirname "$(readlink -f "${0}")")"
+        export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
+        export QT_PLUGIN_PATH="${HERE}/usr/lib/qt/plugins"
+        exec "${HERE}/usr/bin/biManager" "$@"
+        EOF
+        chmod +x AppDir/AppRun
+        
+        # Create .desktop file
+        cat > AppDir/biManager.desktop << EOF
+        [Desktop Entry]
+        Name=biManager
+        Exec=biManager
+        Icon=biManager
+        Type=Application
+        Categories=Utility;
+        EOF
+        
+        # Package as AppImage
+        wget -c "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+        wget -c "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+        chmod +x linuxdeploy*.AppImage
+        
+        export OUTPUT="biManager-linux.AppImage"
+        ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.os }}-build
+        name: biManager-${{ matrix.platform }}
         path: |
-          ${{github.workspace}}/build/**/*.exe
-          ${{github.workspace}}/build/**/*.app
-          ${{github.workspace}}/build/**/*.dmg
-          ${{github.workspace}}/build/**/*.tar.gz
-          ${{github.workspace}}/build/biManager
-          ${{github.workspace}}/build/AppDir/**/*
+          ${{github.workspace}}/build/*.zip
+          ${{github.workspace}}/build/*.dmg
+          ${{github.workspace}}/build/*.AppImage

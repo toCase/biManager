@@ -70,18 +70,18 @@ jobs:
 
     - name: Install aqtinstall
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install aqtinstall
+        python3 -m pip install --upgrade pip
+        python3 -m pip install aqtinstall
 
     # Отладочный вывод доступных модулей
     - name: List available Qt modules
       run: |
-        python -m aqt list-qt ${{ matrix.platform }} desktop --arch ${{ matrix.qt_version }}
+        python3 -m aqt list-qt ${{ matrix.platform }} desktop --arch ${{ matrix.qt_version }}
 
     # Установка Qt
     - name: Install Qt
       run: |
-        python -m aqt install-qt ${{ matrix.platform }} desktop ${{ matrix.qt_version }} gcc_64
+        python3 -m aqt install-qt ${{ matrix.platform }} desktop ${{ matrix.qt_version }} gcc_64
 
     - name: Debug Qt Installation
       run: |

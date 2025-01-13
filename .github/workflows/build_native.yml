@@ -89,7 +89,7 @@ jobs:
           ${{ matrix.platform }} desktop \
           ${{ matrix.qt_version }} \
           ${{ matrix.arch }} \
-          -m qtwebsockets qtconnectivity qtnetworkauth qtshadertools
+          -m qtwebsockets qtconnectivity
 
     - name: Create Build Directory
       run: cmake -E make_directory ${{github.workspace}}/build

@@ -34,15 +34,15 @@ jobs:
       run: |
         python -m aqt install-qt --outputdir ${{github.workspace}}\Qt windows desktop 6.8.0 win64_msvc2022_64 -m qtwebsockets qtconnectivity
 
-        - name: Configure project with CMake
-        shell: cmd
-        env:
-          Qt6_DIR: ${{github.workspace}}\Qt\6.8.0\msvc2022_64
-        run: |
-          cmake -B build -S . ^
-            -DCMAKE_PREFIX_PATH="%Qt6_DIR%" ^
-            -DCMAKE_BUILD_TYPE=Release ^
-            -DCMAKE_INSTALL_PREFIX=install
+    - name: Configure project with CMake
+      shell: cmd
+      env:
+        Qt6_DIR: ${{github.workspace}}\Qt\6.8.0\msvc2022_64
+      run: |
+        cmake -B build -S . ^
+        -DCMAKE_PREFIX_PATH="%Qt6_DIR%" ^
+        -DCMAKE_BUILD_TYPE=Release ^
+        -DCMAKE_INSTALL_PREFIX=install
   
     - name: Build project
       shell: cmd

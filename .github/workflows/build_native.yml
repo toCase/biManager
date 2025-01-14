@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             qt_version: '6.8.0'
             platform: linux
             arch: gcc_64
@@ -154,7 +154,7 @@ jobs:
         mv ${{ env.APP_NAME }}.dmg ${{ env.APP_NAME }}-mac.dmg
 
     - name: Package (Linux)
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-22.04'
       working-directory: ${{github.workspace}}/build
       run: |
         # Create basic AppDir structure

@@ -160,6 +160,8 @@ jobs:
         # Create basic AppDir structure
         mkdir -p AppDir/usr/bin
         cp ${{ env.APP_NAME }} AppDir/usr/bin/
+        mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+        cp  ${{github.workspace}}/icon.png AppDir/usr/share/icons/hicolor/256x256/apps
         
         # Create .desktop file
         mkdir -p AppDir/usr/share/applications
@@ -167,13 +169,10 @@ jobs:
         [Desktop Entry]
         Name=${{ env.APP_NAME }}
         Exec=${{ env.APP_NAME }}
-        Icon=${{ env.APP_NAME }}
+        Icon=icon
         Type=Application
         Categories=Utility;
         EOF
-        
-        # Create dummy icon
-        touch AppDir/${{ env.APP_NAME }}.png
         
         # Download and prepare linuxdeploy
         wget -c "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"

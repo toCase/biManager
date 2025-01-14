@@ -10,26 +10,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
       with:
-        python-version: '3.11'
-
-    - name: Install aqtinstall
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install aqtinstall
-
-    - name: Install Qt (All)
-      shell: bash
-      run: |
-        mkdir -p "${{ github.workspace }}/Qt"
-        python -m aqt install-qt \
-          --outputdir "${{ github.workspace }}/Qt" \
-          mac desktop \
-          6.8.0 \
-          clang_64 \
-          -m all
+        version: '6.8.0'
+        host: 'mac'
+        target: 'ios'
+        install-deps: 'true'
+        modules: 'qtwebsockets qtconnectivity'
+        cache: 'false'
+        cache-key-prefix: 'install-qt-action'
+        setup-python: 'false'
     
     - name: Configure CMake
       run: |

@@ -12,6 +12,8 @@ if(IOS)
     set(CMAKE_SYSTEM_NAME iOS)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
     set(CMAKE_OSX_ARCHITECTURES "arm64")
+    set(Qt6_DIR "$ENV{Qt6_DIR}/lib/cmake/Qt6")
+    set(CMAKE_PREFIX_PATH "$ENV{Qt6_DIR}")
 endif()
 
 find_package(Qt6 REQUIRED COMPONENTS Core Quick WebSockets Sql Network)

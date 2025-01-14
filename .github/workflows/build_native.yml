@@ -9,21 +9,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            qt_version: '6.8.0'
-            platform: linux
-            arch: gcc_64
-            qt_path: gcc_64
+          # - os: ubuntu-latest
+          #   qt_version: '6.8.0'
+          #   platform: linux
+          #   arch: gcc_64
+          #   qt_path: gcc_64
           - os: windows-latest
             qt_version: '6.8.0'
             platform: windows
             arch: win64_msvc2022_64
             qt_path: win64_msvc2022_64
-          - os: macos-latest
-            qt_version: '6.8.0'
-            platform: mac
-            arch: clang_64
-            qt_path: macos
+          # - os: macos-latest
+          #   qt_version: '6.8.0'
+          #   platform: mac
+          #   arch: clang_64
+          #   qt_path: macos
 
     runs-on: ${{ matrix.os }}
     env:
@@ -73,15 +73,18 @@ jobs:
 
     - name: Install Qt (Windows)
       if: matrix.os == 'windows-latest'
-      shell: bash
-      run: |
-        mkdir -p "${{ env.QT_DIR }}"
-        python -m aqt install-qt \
-          --outputdir "${{ env.QT_DIR }}" \
-          ${{ matrix.platform }} desktop \
-          ${{ matrix.qt_version }} \
-          ${{ matrix.arch }} \
-          -m all
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.8.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        dir: '${{ env.QT_DIR }}'
+        install-deps: 'true'
+        modules: 'qtwebsockets qtconnectivity'
+        cache: 'false'
+        cache-key-prefix: 'install-qt-action'
+        setup-python: 'false'
 
     - name: Create Build Directory
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -176,7 +179,7 @@ jobs:
         # Package as AppImage
         wget -c "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
         wget -c "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
-        chmod +x linuxdeploy*.AppImage
+        chmod a+x linuxdeploy*.AppImage
         
         export OUTPUT="${{ env.APP_NAME }}-linux.AppImage"
         ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage

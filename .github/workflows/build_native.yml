@@ -157,25 +157,13 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       working-directory: ${{github.workspace}}/build
       run: |
-        mkdir -p AppDir/usr/{bin,lib,share}
+        # Create basic AppDir structure
+        mkdir -p AppDir/usr/bin
         cp ${{ env.APP_NAME }} AppDir/usr/bin/
         
-        # Copy required Qt libraries and plugins
-        mkdir -p AppDir/usr/lib/qt/plugins
-        cp -r "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/plugins/"* AppDir/usr/lib/qt/plugins/
-        
-        # Create AppRun script
-        cat > AppDir/AppRun << 'EOF'
-        #!/bin/bash
-        HERE="$(dirname "$(readlink -f "${0}")")"
-        export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
-        export QT_PLUGIN_PATH="${HERE}/usr/lib/qt/plugins"
-        exec "${HERE}/usr/bin/${{ env.APP_NAME }}" "$@"
-        EOF
-        chmod +x AppDir/AppRun
-        
         # Create .desktop file
-        cat > AppDir/usr/share/${{ env.APP_NAME }}.desktop << EOF
+        mkdir -p AppDir/usr/share/applications
+        cat > AppDir/usr/share/applications/${{ env.APP_NAME }}.desktop << EOF
         [Desktop Entry]
         Name=${{ env.APP_NAME }}
         Exec=${{ env.APP_NAME }}
@@ -184,49 +172,19 @@ jobs:
         Categories=Utility;
         EOF
         
-        # Package as AppImage
-        wget -c "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
-        chmod a+x linuxdeploy*.AppImage
+        # Create dummy icon
+        touch AppDir/${{ env.APP_NAME }}.png
         
-        export OUTPUT="${{ env.APP_NAME }}-linux.AppImage"
-        ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage
-
-    - name: Package (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      working-directory: ${{github.workspace}}/build
-      run: |
-        mkdir -p AppDir/usr/{bin,lib,share}
-        cp ${{ env.APP_NAME }} AppDir/usr/bin/
-          
-        # Copy required Qt libraries and plugins
-        mkdir -p AppDir/usr/lib/qt/plugins
-        cp -r "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/plugins/"* AppDir/usr/lib/qt/plugins/
-          
-         # Create AppRun script
-        cat > AppDir/AppRun << 'EOF'
-        #!/bin/bash
-        HERE="$(dirname "$(readlink -f "${0}")")"
-        export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
-        export QT_PLUGIN_PATH="${HERE}/usr/lib/qt/plugins"
-        exec "${HERE}/usr/bin/${{ env.APP_NAME }}" "$@"
-        EOF
-        chmod +x AppDir/AppRun
-          
-        # Create .desktop file
-        cat > AppDir/usr/share/${{ env.APP_NAME }}.desktop << EOF
-        [Desktop Entry]
-        Name=${{ env.APP_NAME }}
-        Exec=${{ env.APP_NAME }}
-        Icon=${{ env.APP_NAME }}
-        Type=Application
-        Categories=Utility;
-        EOF
-          
-        # Package as AppImage
+        # Download and prepare linuxdeploy
         wget -c "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
-        chmod a+x linuxdeploy*.AppImage
-          
+        chmod a+x linuxdeploy-x86_64.AppImage
+        
+        # Set environment variables for Qt
+        export PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/bin:$PATH"
+        export LD_LIBRARY_PATH="${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/lib:$LD_LIBRARY_PATH"
         export OUTPUT="${{ env.APP_NAME }}-linux.AppImage"
+        
+        # Let linuxdeploy do its job
         ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage
 
     - name: Upload artifacts

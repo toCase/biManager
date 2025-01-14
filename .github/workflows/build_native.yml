@@ -136,13 +136,13 @@ jobs:
         mkdir deploy
         copy ${{ env.BUILD_TYPE }}\${{ env.APP_NAME }}.exe deploy\
 
-        if not exist "${{ env.QT_DIR }}\${{ matrix.qt_version }}\${{ matrix.qt_path }}\bin\windeployqt.exe" (
+        if not exist "${{ env.QT_DIR }}\Qt\${{ matrix.qt_version }}\${{ matrix.qt_path }}\bin\windeployqt.exe" (
           echo "windeployqt.exe not found at the expected path!"
           exit 1
         )
         echo "windeployqt.exe found."
 
-        "${{ env.QT_DIR }}\${{ matrix.qt_version }}\${{ matrix.qt_path }}\bin\windeployqt.exe" --dir deploy\ --qmldir ${{github.workspace}}\QML deploy\${{ env.APP_NAME }}.exe --release
+        "${{ env.QT_DIR }}\Qt\${{ matrix.qt_version }}\${{ matrix.qt_path }}\bin\windeployqt.exe" --dir deploy\ --qmldir ${{github.workspace}}\QML deploy\${{ env.APP_NAME }}.exe --release
         7z a -tzip ${{ env.APP_NAME }}-windows.zip .\deploy\*
 
     - name: Package (MacOS)

@@ -26,19 +26,18 @@ jobs:
         version: '6.8.0'
         host: 'mac'
         target: 'ios'
-        install-deps: 'true'
         modules: 'qtwebsockets qtconnectivity'
-        cache: 'false'
-        cache-key-prefix: 'install-qt-action'
-        setup-python: 'false'
     
     - name: Configure CMake
       run: |
         echo "Qt6_DIR path: $Qt6_DIR"
         cmake -B build \
         -DIOS=ON \
-        -DCMAKE_BUILD_TYPE=Release
-        -DQt6_DIR=$Qt6_DIR
+        -DCMAKE_BUILD_TYPE=Release \
+        -DQt6_DIR="/Users/runner/work/biManager/Qt/6.8.0/ios/lib/cmake/Qt6" \
+        -DQt6_ANDROID_ABIS=arm64-v8a \
+        -DCMAKE_PREFIX_PATH="/Users/runner/work/biManager/Qt/6.8.0/ios" \
+        -DCMAKE_TOOLCHAIN_FILE="/Users/runner/work/biManager/Qt/6.8.0/ios/lib/cmake/Qt6/qt.toolchain.cmake"
         
     - name: Build
       run: cmake --build build --config Release

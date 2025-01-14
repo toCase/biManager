@@ -14,17 +14,17 @@ jobs:
             platform: linux
             arch: gcc_64
             qt_path: gcc_64
-          # - os: windows-latest
-          #   qt_version: '6.8.0'
-          #   platform: windows
-          #   arch: win64_msvc2022_64
-          #   qt_path: msvc2022_64
+          - os: windows-latest
+            qt_version: '6.8.0'
+            platform: windows
+            arch: win64_msvc2022_64
+            qt_path: msvc2022_64
             
-          # - os: macos-latest
-          #   qt_version: '6.8.0'
-          #   platform: mac
-          #   arch: clang_64
-          #   qt_path: macos
+          - os: macos-latest
+            qt_version: '6.8.0'
+            platform: mac
+            arch: clang_64
+            qt_path: macos
 
     runs-on: ${{ matrix.os }}
     env:
@@ -38,7 +38,7 @@ jobs:
         submodules: recursive
 
     - name: Install Linux Dependencies
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-22.04'
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev \
@@ -186,8 +186,12 @@ jobs:
         # Let linuxdeploy do its job
         ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage
 
+        # Cleanup temporary files
+        rm -f linuxdeploy-x86_64.AppImage
+        rm -rf AppDir
+
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.APP_NAME }}-${{ matrix.platform }}
         path: |

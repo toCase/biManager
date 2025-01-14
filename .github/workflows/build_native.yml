@@ -17,8 +17,8 @@ jobs:
           - os: windows-latest
             qt_version: '6.8.0'
             platform: windows
-            arch: win64_msvc2019_64
-            qt_path: win64_msvc2019_64
+            arch: win64_msvc2022_64
+            qt_path: win64_msvc2022_64
           - os: macos-latest
             qt_version: '6.8.0'
             platform: mac
@@ -41,7 +41,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev \
-        libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0
+        libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libfuse2
 
     - name: Setup MSVC (Windows)
       if: matrix.os == 'windows-latest'
@@ -59,7 +59,20 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install aqtinstall
 
-    - name: Install Qt
+    - name: Install Qt (All)
+      if: matrix.os != 'windows-latest'
+      shell: bash
+      run: |
+        mkdir -p "${{ env.QT_DIR }}"
+        python -m aqt install-qt \
+          --outputdir "${{ env.QT_DIR }}" \
+          ${{ matrix.platform }} desktop \
+          ${{ matrix.qt_version }} \
+          ${{ matrix.arch }} \
+          -m all
+
+    - name: Install Qt (Windows)
+      if: matrix.os == 'windows-latest'
       shell: bash
       run: |
         mkdir -p "${{ env.QT_DIR }}"

@@ -18,7 +18,8 @@ jobs:
             qt_version: '6.8.0'
             platform: windows
             arch: win64_msvc2022_64
-            qt_path: win64_msvc2022_64
+            qt_path: msvc2022_64
+            
           # - os: macos-latest
           #   qt_version: '6.8.0'
           #   platform: mac

@@ -9,16 +9,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - os: ubuntu-latest
-          #   qt_version: '6.8.0'
-          #   platform: linux
-          #   arch: gcc_64
-          #   qt_path: gcc_64
-          - os: windows-latest
+          - os: ubuntu-latest
             qt_version: '6.8.0'
-            platform: windows
-            arch: win64_msvc2022_64
-            qt_path: msvc2022_64
+            platform: linux
+            arch: gcc_64
+            qt_path: gcc_64
+          # - os: windows-latest
+          #   qt_version: '6.8.0'
+          #   platform: windows
+          #   arch: win64_msvc2022_64
+          #   qt_path: msvc2022_64
             
           # - os: macos-latest
           #   qt_version: '6.8.0'

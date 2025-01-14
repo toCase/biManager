@@ -161,8 +161,8 @@ jobs:
         cp ${{ env.APP_NAME }} AppDir/usr/bin/
         
         # # Copy required Qt libraries and plugins
-        # mkdir -p AppDir/usr/lib/qt/plugins
-        # cp -r "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/plugins/"* AppDir/usr/lib/qt/plugins/
+        mkdir -p AppDir/usr/lib/qt/plugins
+        cp -r "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/plugins/"* AppDir/usr/lib/qt/plugins/
         
         Create AppRun script
         cat > AppDir/AppRun << 'EOF'

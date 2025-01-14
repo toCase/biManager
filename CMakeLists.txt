@@ -8,6 +8,12 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+if(IOS)
+    set(CMAKE_SYSTEM_NAME iOS)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
+endif()
+
 find_package(Qt6 REQUIRED COMPONENTS Core Quick WebSockets Sql Network)
 
 qt_standard_project_setup(REQUIRES 6.5)

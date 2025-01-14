@@ -1,0 +1,47 @@
+name: Build for IOS 
+
+on:
+  workflow_dispatch:
+
+jobs:  
+  ios-build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install aqtinstall
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install aqtinstall
+
+    - name: Install Qt (All)
+      shell: bash
+      run: |
+        mkdir -p "${{ github.workspace }}/Qt"
+        python -m aqt install-qt \
+          --outputdir "${{ github.workspace }}/Qt" \
+          mac desktop \
+          6.8.0 \
+          clang_64 \
+          -m all
+    
+    - name: Configure CMake
+      run: |
+        cmake -B build \
+        -DIOS=ON \
+        -DCMAKE_BUILD_TYPE=Release
+        
+    - name: Build
+      run: cmake --build build --config Release
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-app-bundle
+        path: build/appTestBinance.app

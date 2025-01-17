@@ -151,7 +151,7 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/bin/macdeployqt" ${{ env.APP_NAME }}.app 
-        mv ${{ env.APP_NAME }}.dmg ${{ env.APP_NAME }}-mac.app
+        mv ${{ env.APP_NAME }}.app ${{ env.APP_NAME }}-mac.app
 
     - name: Package (Linux)
       if: matrix.os == 'ubuntu-22.04'
@@ -196,5 +196,5 @@ jobs:
         name: ${{ env.APP_NAME }}-${{ matrix.platform }}
         path: |
           ${{github.workspace}}/build/*.zip
-          ${{github.workspace}}/build/*.dmg
+          ${{github.workspace}}/build/*.app
           ${{github.workspace}}/build/*.AppImage

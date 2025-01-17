@@ -150,8 +150,8 @@ jobs:
       if: matrix.os == 'macos-latest'
       working-directory: ${{github.workspace}}/build
       run: |
-        "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/bin/macdeployqt" ${{ env.APP_NAME }}.app -dmg
-        mv ${{ env.APP_NAME }}.dmg ${{ env.APP_NAME }}-mac.dmg
+        "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/bin/macdeployqt" ${{ env.APP_NAME }}.app 
+        mv ${{ env.APP_NAME }}.dmg ${{ env.APP_NAME }}-mac.app
 
     - name: Package (Linux)
       if: matrix.os == 'ubuntu-22.04'

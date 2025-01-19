@@ -36,6 +36,7 @@ private:
     QNetworkRequest createAuthrizedRequest(const QString& endpoint, const QString& queryString = QString());
 
     void handleGetBalance();
+    void handleGetOrders();
 
 };
 

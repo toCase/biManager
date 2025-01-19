@@ -150,7 +150,7 @@ jobs:
       if: matrix.os == 'macos-latest'
       working-directory: ${{github.workspace}}/build
       run: |
-        "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/bin/macdeployqt" ${{ env.APP_NAME }}.app 
+        "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/bin/macdeployqt" ${{ env.APP_NAME }}.app  -qmldir=${{github.workspace}}/QML -verbose=2
         mv ${{ env.APP_NAME }}.app ${{ env.APP_NAME }}-mac.app
 
     - name: Package (Linux)

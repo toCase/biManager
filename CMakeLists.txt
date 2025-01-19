@@ -47,6 +47,8 @@ qt_add_qml_module(appTestBinance
         SOURCES binance_manager.h binance_manager.cpp
         SOURCES service_manager.h service_manager.cpp
         QML_FILES QML/Trade.qml
+        SOURCES d_asset.h d_asset.cpp
+        SOURCES app_namespaces.h
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

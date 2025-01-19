@@ -12,9 +12,11 @@ public:
     explicit ServiceManager(WebSocket_Manager *websocketManager, BinanceManager *binanceManager, DatabaseWorker *databaseWorker, QObject *parent = nullptr);
 
     void getAccountStatus(int accountID);
+    void getAccountOrders(int accountID);
 
 signals:
     void readyAccountStatus(int accountID, const QString& status, double balance);
+    void readyAccountOrders();
 
 private slots:
     void handleBinanceResponce(int accountID, const QJsonObject& result, const TypeTask& tt);
@@ -26,6 +28,7 @@ private:
     BinanceManager *m_BinanceManager;
 
     void processAccountStatus(int accountID, const QJsonObject& result);
+    void processAccountOrders(int accountID, const QJsonObject& result);
 
 
 };

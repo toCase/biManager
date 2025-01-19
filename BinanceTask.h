@@ -6,6 +6,7 @@
 enum class TypeTask {
     GET_STATUS,
     GET_BALANCE,
+    GET_ALL_ORDERS,
 };
 
 

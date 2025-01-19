@@ -95,27 +95,20 @@ bool DatabaseWorker::setData(int table, QVariantMap data)
     QSqlQuery query(db);
     if (id == 0) {
         switch (table) {
-        case 1:
+        case Tables::ACCOUNTS:
             query.prepare(R"(INSERT INTO Accounts (name, type, api, secret) VALUES (:name, :type, :api, :secret))");
             query.bindValue(":name", data.value("name"));
             query.bindValue(":type", data.value("type"));
             query.bindValue(":api", data.value("api"));
             query.bindValue(":secret", data.value("secret"));
             break;
-        case 2:
-            query.prepare(R"(INSERT INTO AccountAssets (acc_id, asset, amount, price)
-                            VALUES (:acc_id, :asset, :amount, :price))");
-            query.bindValue(":acc_id", data.value("acc_id"));
-            query.bindValue(":asset", data.value("asset"));
-            query.bindValue(":amount", data.value("amount"));
-            query.bindValue(":price", data.value("price"));
-            break;
+
         default:
             break;
         }
     } else {
         switch (table) {
-        case 1:
+        case Tables::ACCOUNTS:
             query.prepare(R"(UPDATE Accounts AS T SET name = :name, type = :type, api = :api, secret = :secret WHERE T.id = :id )");
             query.bindValue(":name", data.value("name"));
             query.bindValue(":type", data.value("type"));
@@ -123,16 +116,18 @@ bool DatabaseWorker::setData(int table, QVariantMap data)
             query.bindValue(":secret", data.value("secret"));
             query.bindValue(":id", data.value("id"));
             break;
-        case 2:
-            query.prepare(R"(UPDATE AccountAssets AS T SET amount = :amount, price = :price WHERE T.acc_id = :acc_id and asset = :asset)");
-            query.bindValue(":acc_id", data.value("acc_id"));
-            query.bindValue(":asset", data.value("asset"));
-            query.bindValue(":amount", data.value("amount"));
-            query.bindValue(":price", data.value("price"));
-            break;
         default:
             break;
         }
+    }
+
+    if (table == Tables::ASSETS) {
+        query.prepare(R"(INSERT INTO AccountAssets (acc_id, asset, amount, price)
+                            VALUES (:acc_id, :asset, :amount, :price))");
+        query.bindValue(":acc_id", data.value("acc_idx"));
+        query.bindValue(":asset", data.value("asset"));
+        query.bindValue(":amount", data.value("amount"));
+        query.bindValue(":price", data.value("price"));
     }
 
     bool res = query.exec();
@@ -148,11 +143,14 @@ bool DatabaseWorker::delData(int table, int id)
 
     QSqlQuery query(db);
     switch (table) {
-    case 1:
+    case Tables::ACCOUNTS:
         query.prepare(R"(DELETE FROM Accounts AS T WHERE T.id = :id)");
         query.bindValue(":id", id);
         break;
-
+    case Tables::ASSETS:
+        query.prepare(R"(DELETE FROM AccountAssets AS T WHERE T.acc_id = :acc_id)");
+        query.bindValue(":acc_id", id);
+        break;
     default:
         break;
     }

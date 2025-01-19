@@ -18,6 +18,9 @@ void TaskWorker::processTask(BinanceTask *task)
     case TypeTask::GET_BALANCE:
         handleGetBalance();
         break;
+    case TypeTask::GET_ALL_ORDERS:
+        handleGetOrders();
+        break;
     default:
         break;
     }
@@ -66,6 +69,26 @@ void TaskWorker::handleGetBalance()
             emit taskCompleted(m_account->idx(), jdoc.object(), TypeTask::GET_BALANCE);
         } else {
             emit taskError(m_account->idx(), reply->errorString(), TypeTask::GET_BALANCE);
+        }
+        reply->deleteLater();
+    });
+}
+
+void TaskWorker::handleGetOrders()
+{
+    QNetworkRequest request = createAuthrizedRequest("/api/v3/allOrders", "symbol=ETHUSDT");
+
+    qDebug() << request.url();
+
+    QNetworkReply *reply = m_manager->get(request);
+    connect(reply, &QNetworkReply::finished, [this, reply](){
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray responce = reply->readAll();
+            QJsonDocument jdoc = QJsonDocument::fromJson(responce);
+            emit taskCompleted(m_account->idx(), jdoc.object(), TypeTask::GET_ALL_ORDERS);
+        } else {
+            qDebug() << reply->errorString();
+            emit taskError(m_account->idx(), reply->errorString(), TypeTask::GET_ALL_ORDERS);
         }
         reply->deleteLater();
     });

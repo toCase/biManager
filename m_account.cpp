@@ -126,12 +126,19 @@ void ModelAccount::connectItem()
             if (acc->type() == "binance"){
                 acc->setConnected(true);
                 CONNECTED_LIST.append(acc);
+
+
             }
         }
     }
 
     if (!CONNECTED_LIST.isEmpty()){
         binanceManager->updateAccounts(CONNECTED_LIST);
+    }
+    binanceManager->updateAccounts(CONNECTED_LIST);
+
+    for (auto acc: CONNECTED_LIST){
+        serviceManager->getAccountOrders(acc->idx());
     }
 
 

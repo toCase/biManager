@@ -5,11 +5,10 @@
 #include <QCoreApplication>
 #include <QDir>
 
-// #include "settingmanager.h"
-// #include "namespaces.h"
-// #include "appenums.h"
-// #include "datas.h"
+#include "app_namespaces.h"
 #include "db_mapper.h"
+
+using namespace App;
 
 class DatabaseManager : public QObject
 {
@@ -60,10 +59,10 @@ public:
         if (db.isOpen()) {
             QSqlQuery query(db);
             switch (table) {
-            case 1:
+            case Tables::ACCOUNTS:
                 query.prepare(R"(SELECT * FROM Accounts)");
                 break;
-            case 2:
+            case Tables::ASSETS:
                 query.prepare(R"(SELECT * FROM AccountAssets AS T WHERE T.acc_id = :acc_id)");
                 query.bindValue(":acc_id", filter.value("acc_id"));
                 break;

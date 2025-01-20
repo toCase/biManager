@@ -10,7 +10,7 @@ set(CMAKE_AUTOUIC ON)
 
 if(IOS)
     set(CMAKE_SYSTEM_NAME iOS)
-    # set(CMAKE_OSX_DEPLOYMENT_TARGET "16.0")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "17.0")
     #set(CMAKE_OSX_ARCHITECTURES "arm64")
     # Отключаем создание bundle для iOS
     set(CMAKE_MACOSX_BUNDLE TRUE)
@@ -20,7 +20,7 @@ endif()
 
 find_package(Qt6 REQUIRED COMPONENTS Core Quick QuickControls2 WebSockets Sql Network)
 
-qt_standard_project_setup(REQUIRES 6.5)
+qt_standard_project_setup(REQUIRES 6.8)
 
 qt_add_executable(appTestBinance
     main.cpp

@@ -16,6 +16,7 @@ if(IOS)
     set(CMAKE_MACOSX_BUNDLE TRUE)
     # Устанавливаем тип компоновки
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    set(QT_NO_FFMPEG_XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY ON)
 endif()
 
 find_package(Qt6 REQUIRED COMPONENTS Core Quick QuickControls2 WebSockets Sql Network)
@@ -61,7 +62,7 @@ qt_add_resources(appTestBinance "configuration"
 )
 
 if(IOS)  
-    qt_add_ios_ffmpeg_libraries(mytarget)
+    qt_add_ios_ffmpeg_libraries(appTestBinance)
 endif()   
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

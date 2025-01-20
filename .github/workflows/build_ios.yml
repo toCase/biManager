@@ -16,6 +16,11 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Install System Dependencies
+      run: |
+        brew update
+        brew install ffmpeg
+
     - name: Install Python and aqtinstall
       uses: actions/setup-python@v4
       with:

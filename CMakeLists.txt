@@ -18,7 +18,7 @@ if(IOS)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 endif()
 
-find_package(Qt6 REQUIRED COMPONENTS Core Quick WebSockets Sql Network)
+find_package(Qt6 REQUIRED COMPONENTS Core Quick QuickControls2 WebSockets Sql Network)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -49,6 +49,15 @@ qt_add_qml_module(appTestBinance
         QML_FILES QML/Trade.qml
         SOURCES d_asset.h d_asset.cpp
         SOURCES app_namespaces.h
+        QML_FILES QML/Controls/MMT_Button.qml
+        QML_FILES QML/const.js
+)
+
+# Добавляем qtquickcontrols2.conf в ресурсы
+qt_add_resources(appTestBinance "configuration"
+    PREFIX "/"
+    FILES
+        qtquickcontrols2.conf
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -64,6 +73,7 @@ set_target_properties(appTestBinance PROPERTIES
 
 target_link_libraries(appTestBinance
     PRIVATE Qt6::Quick
+    PRIVATE Qt6::QuickControls2
     PRIVATE Qt6::WebSockets
     PRIVATE Qt6::Core
     PRIVATE Qt6::Sql

@@ -1,6 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Layouts
-import QtQuick.Controls
+import QtQuick.Controls.Material
+
+
 
 Item {
     id: trade
@@ -16,7 +18,7 @@ Item {
             spacing: 5
 
 
-            Text {
+            Label {
                 Layout.fillHeight: true
                 Layout.preferredWidth: implicitWidth
 
@@ -24,7 +26,7 @@ Item {
                 font.pointSize: 15
 
             }
-            Text {
+            Label {
                 id: f_price
                 Layout.fillHeight: true
                 Layout.preferredWidth: implicitWidth

@@ -47,5 +47,8 @@ public:
 private slots:
     void processAccountStatus(int accountID, const QString& status, double balance);
 
+signals:
+    void changeConnectList(QList<D_Account*> connect_list);
+
 
 };

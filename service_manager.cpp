@@ -21,7 +21,7 @@ void ServiceManager::getAccountOrders(int accountID)
     m_BinanceManager->addTask(new BinanceTask(TypeTask::GET_ALL_ORDERS, accountID));
 }
 
-void ServiceManager::handleBinanceResponce(int accountID, const QJsonObject &result, const TypeTask& tt)
+void ServiceManager::handleBinanceResponce(int accountID, const QJsonDocument &result, const TypeTask& tt)
 {
     if (tt == TypeTask::GET_BALANCE) {
         // qDebug() << "Task completed for account: " << accountID << " : " << result;
@@ -42,20 +42,22 @@ void ServiceManager::handleBinanceError(int accountID, const QString &error, con
     }
 }
 
-void ServiceManager::processAccountStatus(int accountID, const QJsonObject &result)
+void ServiceManager::processAccountStatus(int accountID, const QJsonDocument &result)
 {
     double balance = 0.00;
     QString status = "Invalid";
 
+    QJsonObject res = result.object();
 
-    if (!result.contains("balance") || result["balances"].isArray()) {
+
+    if (!res.contains("balance") || res["balances"].isArray()) {
         emit readyAccountStatus(accountID, status, balance);
     }
 
     //del assets
     m_DatabaseWorker->delData(Tables::ASSETS, accountID);
 
-    QJsonArray js_balances = result["balances"].toArray();
+    QJsonArray js_balances = res["balances"].toArray();
     for (const QJsonValue& item : js_balances) {
         QJsonObject js_item = item.toObject();
 
@@ -77,9 +79,14 @@ void ServiceManager::processAccountStatus(int accountID, const QJsonObject &resu
 
 }
 
-void ServiceManager::processAccountOrders(int accountID, const QJsonObject &result)
+void ServiceManager::processAccountOrders(int accountID, const QJsonDocument &result)
 {
     qDebug() << "ORDERS FROM ACCOUNT ID: " << accountID;
+    QJsonArray res;
+    if (result.isArray()) {
+        res = result.array();
+    }
+    qDebug() << res.size();
     qDebug() << QJsonDocument(result).toJson(QJsonDocument::Compact);
     qDebug() << "-----------------------------------------";
 

@@ -66,7 +66,7 @@ void TaskWorker::handleGetBalance()
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responce = reply->readAll();
             QJsonDocument jdoc = QJsonDocument::fromJson(responce);
-            emit taskCompleted(m_account->idx(), jdoc.object(), TypeTask::GET_BALANCE);
+            emit taskCompleted(m_account->idx(), jdoc, TypeTask::GET_BALANCE);
         } else {
             emit taskError(m_account->idx(), reply->errorString(), TypeTask::GET_BALANCE);
         }
@@ -82,10 +82,14 @@ void TaskWorker::handleGetOrders()
 
     QNetworkReply *reply = m_manager->get(request);
     connect(reply, &QNetworkReply::finished, [this, reply](){
+
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responce = reply->readAll();
+
+            qDebug() << "Response: " << responce.size();
+
             QJsonDocument jdoc = QJsonDocument::fromJson(responce);
-            emit taskCompleted(m_account->idx(), jdoc.object(), TypeTask::GET_ALL_ORDERS);
+            emit taskCompleted(m_account->idx(), jdoc, TypeTask::GET_ALL_ORDERS);
         } else {
             qDebug() << reply->errorString();
             emit taskError(m_account->idx(), reply->errorString(), TypeTask::GET_ALL_ORDERS);
@@ -190,7 +194,7 @@ void BinanceManager::processNextTask()
 
 }
 
-void BinanceManager::handleTaskCompleted(int accountID, const QJsonObject &result, const TypeTask &tt)
+void BinanceManager::handleTaskCompleted(int accountID, const QJsonDocument &result, const TypeTask &tt)
 {
     emit taskCompleted(accountID, result, tt);
 }

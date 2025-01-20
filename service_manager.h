@@ -19,7 +19,7 @@ signals:
     void readyAccountOrders();
 
 private slots:
-    void handleBinanceResponce(int accountID, const QJsonObject& result, const TypeTask& tt);
+    void handleBinanceResponce(int accountID, const QJsonDocument& result, const TypeTask& tt);
     void handleBinanceError(int accountID, const QString& error, const TypeTask& tt);
 
 private:
@@ -27,8 +27,8 @@ private:
     DatabaseWorker *m_DatabaseWorker;
     BinanceManager *m_BinanceManager;
 
-    void processAccountStatus(int accountID, const QJsonObject& result);
-    void processAccountOrders(int accountID, const QJsonObject& result);
+    void processAccountStatus(int accountID, const QJsonDocument& result);
+    void processAccountOrders(int accountID, const QJsonDocument& result);
 
 
 };

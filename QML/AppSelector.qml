@@ -1,6 +1,9 @@
 // pragma ComponentBehavior: Bound
 import QtQuick 2.15
 import QtQml.Models
+import QtQuick.Controls.Material
+
+import "const.js" as Const
 
 Item {
     id: selector
@@ -21,7 +24,7 @@ Item {
         Rectangle {
             width: selector.width / 5;
             height: 40
-            color: "lightsteelblue"; radius: 5
+            color: Const.CLR_ACCENT; radius: 5
             x: slc_list.currentItem.x
             Behavior on x {
                 SpringAnimation {
@@ -44,7 +47,7 @@ Item {
             width: selector.width / 5
             height: 40
 
-            Text {
+            Label {
                 anchors.fill: parent
                 text: name
                 font.pointSize: 15

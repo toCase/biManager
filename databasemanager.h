@@ -43,11 +43,14 @@ public:
 
 
     Q_PROPERTY(QString error READ error WRITE setError NOTIFY errorChanged FINAL);
+    Q_PROPERTY(int lastId READ lastId WRITE setLastId NOTIFY lastIdChanged FINAL);
+
 
     bool NET = false;
 
     // AppEnums Enums;
     // SettingManager settingManager;
+    int _lastId = 0;
     QSqlDatabase db;
     QString _error;
 
@@ -84,6 +87,10 @@ public:
     void setError(const QString& e);
     QString error();
 
+    void setLastId(int lastId);
+    int lastId();
+
 signals:
     void errorChanged(const QString& error);
+    void lastIdChanged(int lastId);
 };

@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQuickStyle>
 // #include <QThread>
 #include "websocket_manager.h"
 #include "databasemanager.h"
@@ -11,6 +12,8 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+
+    QQuickStyle::setStyle("Material");
 
     // Включаем отладочные сообщения
     qSetMessagePattern("[%{time h:mm:ss.zzz}] [%{type}] %{message}");

@@ -23,6 +23,8 @@ public:
                        const QString& api, const QString& secret, bool selected,
                        bool connected, const QString& status, const QString& balance, QObject *parent = nullptr);
 
+    explicit D_Account(const QVariantMap& map, QObject *parent = nullptr);
+
     int _idx = 0;
     QString _name;
     QString _type;

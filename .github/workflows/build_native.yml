@@ -153,6 +153,12 @@ jobs:
         "${{ env.QT_DIR }}/${{ matrix.qt_version }}/${{ matrix.qt_path }}/bin/macdeployqt" ${{ env.APP_NAME }}.app  -qmldir=${{github.workspace}}/QML -verbose=2
         mv ${{ env.APP_NAME }}.app ${{ env.APP_NAME }}-mac.app
 
+        # Создаём директорию для QML файлов
+        mkdir -p ${{ env.APP_NAME }}.app/Contents/Resources/QML
+    
+        # Копируем QML файлы
+        cp -r ${{github.workspace}}/QML/* ${{ env.APP_NAME }}.app/Contents/Resources/QML/
+
     - name: Package (Linux)
       if: matrix.os == 'ubuntu-22.04'
       working-directory: ${{github.workspace}}/build

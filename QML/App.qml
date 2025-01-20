@@ -1,10 +1,14 @@
 pragma ComponentBehavior: Bound
 import QtQuick 2.15
 import QtQuick.Layouts
-import QtQuick.Controls
+import QtQuick.Controls.Material
+
+import "const.js" as Const
 
 Item {
     id: app
+
+
 
     states: [
         State {
@@ -61,56 +65,64 @@ Item {
 
     state: "ACC"
 
-    ColumnLayout {
+    Rectangle {
+        id: app_background
         anchors.fill: parent
-        anchors.margins: 5
 
-        spacing:5
+        color: Const.CLR_BG
 
-        AppSelector {
-            id: selector
-            Layout.fillWidth: true
-            Layout.preferredHeight: 50
 
-        }
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 5
 
-        StackView {
-            id: app_stack
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.verticalStretchFactor: 1
-            initialItem: Item{}
+            spacing:5
 
-            pushEnter: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 0
-                    to:1
-                    duration: 200
-                }
+            AppSelector {
+                id: selector
+                Layout.fillWidth: true
+                Layout.preferredHeight: 50
+
             }
-            pushExit: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 1
-                    to:0
-                    duration: 200
+
+            StackView {
+                id: app_stack
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.verticalStretchFactor: 1
+                initialItem: Item{}
+
+                pushEnter: Transition {
+                    PropertyAnimation {
+                        property: "opacity"
+                        from: 0
+                        to:1
+                        duration: 200
+                    }
                 }
-            }
-            popEnter: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 0
-                    to:1
-                    duration: 200
+                pushExit: Transition {
+                    PropertyAnimation {
+                        property: "opacity"
+                        from: 1
+                        to:0
+                        duration: 200
+                    }
                 }
-            }
-            popExit: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 1
-                    to:0
-                    duration: 200
+                popEnter: Transition {
+                    PropertyAnimation {
+                        property: "opacity"
+                        from: 0
+                        to:1
+                        duration: 200
+                    }
+                }
+                popExit: Transition {
+                    PropertyAnimation {
+                        property: "opacity"
+                        from: 1
+                        to:0
+                        duration: 200
+                    }
                 }
             }
         }
@@ -148,7 +160,7 @@ Item {
     Item {
         id: orders
         visible: false
-        Text {
+        Label {
             anchors.centerIn: parent
             text: "ORDERS"
         }
@@ -157,7 +169,7 @@ Item {
     Item {
         id: assets
         visible: false
-        Text {
+        Label {
             anchors.centerIn: parent
             text: "ASSETS"
         }
@@ -166,7 +178,7 @@ Item {
     Item {
         id: setting
         visible: false
-        Text {
+        Label {
             anchors.centerIn: parent
             text: "SETTING"
         }

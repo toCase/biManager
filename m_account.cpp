@@ -1,4 +1,5 @@
 #include "m_account.h"
+#include <exception>
 
 ModelAccount::ModelAccount(BinanceManager *bm, DatabaseWorker *dbw, ServiceManager *sm, QObject *parent)
     : binanceManager(bm),
@@ -26,6 +27,7 @@ ModelAccount::ModelAccount(BinanceManager *bm, DatabaseWorker *dbw, ServiceManag
     }
 
     connect(serviceManager, &ServiceManager::readyAccountStatus, this, &ModelAccount::processAccountStatus);
+    connect(this, &ModelAccount::changeConnectList, binanceManager, &BinanceManager::updateAccounts);
 }
 
 
@@ -110,7 +112,6 @@ void ModelAccount::load()
 
 void ModelAccount::selectItem(int row, bool s)
 {
-    qDebug() << "SELECT: "<< row;
     D_Account* acc = DATA[row];
     acc->setSelected(s);
     DATA[row] = acc;
@@ -132,16 +133,10 @@ void ModelAccount::connectItem()
         }
     }
 
-    if (!CONNECTED_LIST.isEmpty()){
-        binanceManager->updateAccounts(CONNECTED_LIST);
-    }
-    binanceManager->updateAccounts(CONNECTED_LIST);
-
+    emit changeConnectList(CONNECTED_LIST);
     for (auto acc: CONNECTED_LIST){
         serviceManager->getAccountOrders(acc->idx());
     }
-
-
     emit endResetModel();
 }
 
@@ -154,10 +149,7 @@ void ModelAccount::disconnectItem()
             CONNECTED_LIST.removeOne(acc);
         }
     }
-
-    if (!CONNECTED_LIST.isEmpty()){
-        binanceManager->updateAccounts(CONNECTED_LIST);
-    }
+    emit changeConnectList(CONNECTED_LIST);
     emit endResetModel();
 }
 
@@ -171,8 +163,7 @@ void ModelAccount::disconnectAll()
     }
 
     CONNECTED_LIST.clear();
-    binanceManager->updateAccounts(CONNECTED_LIST);
-
+    emit changeConnectList(CONNECTED_LIST);
     emit endResetModel();
 }
 
@@ -185,7 +176,31 @@ bool ModelAccount::saveItem(QVariantMap card)
 {
     bool r = databaseWorker->setData(1, card);
     if (r){
-        load();
+        //disconnect all
+        for (auto acc : DATA){
+            if (CONNECTED_LIST.contains(acc)) {
+                acc->setConnected(false);
+            }
+        }
+        CONNECTED_LIST.clear();
+
+        try {
+            // get id
+            card.insert("id", databaseWorker->lastId());
+            // make acc
+            D_Account* acc = new D_Account(card);
+            // add acc in model
+            DATA.append(acc);
+
+            //get status & balance
+            QList<D_Account*> templist;
+            templist.append(acc);
+            binanceManager->updateAccounts(templist);
+            serviceManager->getAccountStatus(acc->idx());
+        } catch (...) {
+            qDebug() << "ERR";
+        }
+
     }
 
     // for (auto acc : DATA){

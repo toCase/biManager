@@ -7,6 +7,19 @@ D_Account::D_Account(int idx, const QString& name, const QString& type,
     _selected(selected), _connected(connected), _status(status), _balance(balance), QObject{parent}
 {}
 
+D_Account::D_Account(const QVariantMap &map, QObject *parent) : QObject(parent)
+{
+    _idx = map.value("id").toInt();
+    _name = map.value("name").toString();
+    _type = map.value("type").toString();
+    _api = map.value("api").toString();
+    _secret = map.value("secret").toString();
+    _selected = map.value("selected", false).toBool();
+    _connected = map.value("connected", false).toBool();
+    _status = map.value("status", "Invalid").toString();
+    _balance = map.value("balance", 0.00).toString();
+}
+
 void D_Account::setid(int idx)
 {
     if (idx != _idx) {_idx = idx; emit idChanged(); }
@@ -76,6 +89,6 @@ void D_Account::fromMap(QVariantMap map)
     _secret = map.value("secret").toString();
     _selected = map.value("selected", false).toBool();
     _connected = map.value("connected", false).toBool();
-    _status = map.value("status").toString();
-    _balance = map.value("balance").toString();
+    _status = map.value("status", "Invalid").toString();
+    _balance = map.value("balance", 0.00).toString();
 }

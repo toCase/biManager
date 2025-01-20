@@ -1,6 +1,9 @@
 import QtQuick 2.15
 import QtQuick.Layouts
-import QtQuick.Controls
+import QtQuick.Controls.Material
+
+import "Controls"
+import "const.js" as Const
 
 Item {
     id: acc_main
@@ -16,7 +19,7 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: Const.row_but_height
             spacing: 5
 
             Item {
@@ -24,20 +27,20 @@ Item {
                 Layout.horizontalStretchFactor: 1
             }
 
-            Button {
+            MMT_Button {
                 Layout.fillHeight: true
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 140
                 text: "GET HISTORY"
             }
-            Button {
+            MMT_Button {
                 Layout.fillHeight: true
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 160
                 text: "ADD ACCOUNT"
                 onClicked: acc_main.add()
             }
-            Button {
+            MMT_Button {
                 Layout.fillHeight: true
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 140
                 text: "UPDATE"
             }
 
@@ -92,7 +95,7 @@ Item {
                         onClicked: modelAccount.selectItem(index, checked)
                     }
 
-                    Text {
+                    Label {
                         Layout.fillHeight: true
                         Layout.preferredWidth: 100
 
@@ -100,29 +103,32 @@ Item {
                         verticalAlignment: Qt.AlignVCenter
                     }
 
-                    Text {
+                    Label {
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                         Layout.horizontalStretchFactor: 1
 
                         text: m_name
+                        font.pointSize: 13
                         verticalAlignment: Qt.AlignVCenter
                     }
-                    Text {
+                    Label {
                         Layout.fillHeight: true
                         Layout.preferredWidth: 100
 
                         text: m_status
+                        color: Const.CLR_RED
                         verticalAlignment: Qt.AlignVCenter
                     }
-                    Text {
+                    Label {
                         Layout.fillHeight: true
                         Layout.preferredWidth: 100
 
                         text: m_connected
+                        color: Const.CLR_GREEN
                         verticalAlignment: Qt.AlignVCenter
                     }
-                    Text {
+                    Label {
                         Layout.fillHeight: true
                         Layout.preferredWidth: 100
 
@@ -139,21 +145,21 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: Const.row_but_height
             spacing: 5
             Item {
                 Layout.fillWidth: true
                 Layout.horizontalStretchFactor: 1
             }
-            Button {
+            MMT_Button {
                 Layout.fillHeight: true
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 140
                 text: "CONNECT"
                 onClicked: modelAccount.connectItem()
             }
-            Button {
+            MMT_Button {
                 Layout.fillHeight: true
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 140
                 text: "DISCONNECT"
                 onClicked: modelAccount.disconnectItem()
             }
@@ -164,15 +170,15 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: Const.row_but_height
             spacing: 5
             Item {
                 Layout.fillWidth: true
                 Layout.horizontalStretchFactor: 1
             }
-            Button {
+            MMT_Button {
                 Layout.fillHeight: true
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 180
                 text: "DISCONNECT ALL"
                 onClicked: modelAccount.disconnectAll()
             }
@@ -183,15 +189,15 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: Const.row_but_height
             spacing: 5
             Item {
                 Layout.fillWidth: true
                 Layout.horizontalStretchFactor: 1
             }
-            Button {
+            MMT_Button {
                 Layout.fillHeight: true
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: 140
                 text: "DELETE"
             }
             Item {
@@ -200,5 +206,4 @@ Item {
             }
         }
     }
-
 }

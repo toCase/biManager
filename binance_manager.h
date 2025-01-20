@@ -24,12 +24,13 @@ public slots:
     void processTask(BinanceTask *task);
 
 signals:
-    void taskCompleted(int accountID, const QJsonObject& result, const TypeTask& tt);
+    void taskCompleted(int accountID, const QJsonDocument& result, const TypeTask& tt);
     void taskError(int accountID, const QString& error, const TypeTask& tt);
 
 private:
     D_Account *m_account;
     QNetworkAccessManager *m_manager;
+    // const QString BASE_URL = "https://testnet.binance.vision";
     const QString BASE_URL = "https://api.binance.com";
 
     QString generateSignature(const QString& queryString);
@@ -53,7 +54,7 @@ public:
     void addTask(BinanceTask* task);
 
 signals:
-    void taskCompleted(int accountID, const QJsonObject& result, const TypeTask& tt);
+    void taskCompleted(int accountID, const QJsonDocument& result, const TypeTask& tt);
     void taskError(int accountID, const QString& error, const TypeTask& tt);
     void workerError(int accountID, const QString& error);
 
@@ -62,7 +63,7 @@ signals:
 
 private slots:
     void processNextTask();
-    void handleTaskCompleted(int accountID, const QJsonObject& result, const TypeTask& tt);
+    void handleTaskCompleted(int accountID, const QJsonDocument& result, const TypeTask& tt);
     void handleTaskError(int accountID, const QString& error, const TypeTask& tt);
 
 private:

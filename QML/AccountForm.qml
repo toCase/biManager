@@ -1,6 +1,9 @@
 import QtQuick 2.15
 import QtQuick.Layouts
-import QtQuick.Controls
+import QtQuick.Controls.Material
+
+import "Controls"
+import "const.js" as Const
 
 Item {
     id: acc_form
@@ -51,9 +54,9 @@ Item {
         width: parent.width < 400 ? parent.width : parent.width > 1000 ? parent.width * 0.6 : parent.width * 0.8
         height: implicitHeight
 
-        spacing: 5
+        spacing: 7
 
-        Text {
+        Label {
             Layout.fillWidth: true
             Layout.preferredHeight: implicitHeight
 
@@ -64,11 +67,11 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: Const.row_height
 
-            spacing: 5
+            spacing: 7
 
-            Text {
+            Label {
                 Layout.preferredWidth: Math.max(80, implicitWidth)
                 Layout.fillHeight: true
 
@@ -85,11 +88,11 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: Const.row_height
 
-            spacing: 5
+            spacing: 7
 
-            Text {
+            Label {
                 Layout.preferredWidth: Math.max(80, implicitWidth)
                 Layout.fillHeight: true
 
@@ -107,11 +110,11 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: Const.row_height
 
-            spacing: 5
+            spacing: 7
 
-            Text {
+            Label {
                 Layout.preferredWidth: Math.max(80, implicitWidth)
                 Layout.fillHeight: true
 
@@ -128,11 +131,11 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: Const.row_height
 
-            spacing: 5
+            spacing: 7
 
-            Text {
+            Label {
                 Layout.preferredWidth: Math.max(80, implicitWidth)
                 Layout.fillHeight: true
 
@@ -149,22 +152,22 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: Const.row_but_height
 
-            spacing: 5
+            spacing: 7
 
-            Item {
+            Label {
                 Layout.fillWidth: true
                 Layout.horizontalStretchFactor: 1
             }
 
-            Button {
+            MMT_Button {
                 Layout.fillHeight: true
                 Layout.preferredWidth: 120
                 text: "SAVE"
                 onClicked: acc_form.save()
             }
-            Button {
+            MMT_Button {
                 Layout.fillHeight: true
                 Layout.preferredWidth: 120
                 text: "CANCEL"

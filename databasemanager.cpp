@@ -130,9 +130,11 @@ bool DatabaseWorker::setData(int table, QVariantMap data)
         query.bindValue(":price", data.value("price"));
     }
 
-    bool res = query.exec();
+    bool res = query.exec();    
     if (!res) {
         setError(QString("DB Save error: %1").arg(query.lastError().text()));
+    } else {
+        setLastId(query.lastInsertId().toInt());
     }
     return res;
 }
@@ -173,5 +175,18 @@ void DatabaseWorker::setError(const QString &e)
 QString DatabaseWorker::error()
 {
     return _error;
+}
+
+void DatabaseWorker::setLastId(int lastId)
+{
+    if (lastId != _lastId){
+        _lastId = lastId;
+        emit lastIdChanged(_lastId);
+    }
+}
+
+int DatabaseWorker::lastId()
+{
+    return _lastId;
 }
 

@@ -60,6 +60,10 @@ qt_add_resources(appTestBinance "configuration"
         qtquickcontrols2.conf
 )
 
+if if(IOS)  
+    qt_add_ios_ffmpeg_libraries(mytarget)
+endif()   
+
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.

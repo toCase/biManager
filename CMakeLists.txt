@@ -10,7 +10,7 @@ set(CMAKE_AUTOUIC ON)
 
 if(IOS)
     set(CMAKE_SYSTEM_NAME iOS)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "16.0")
+    # set(CMAKE_OSX_DEPLOYMENT_TARGET "16.0")
     #set(CMAKE_OSX_ARCHITECTURES "arm64")
     # Отключаем создание bundle для iOS
     set(CMAKE_MACOSX_BUNDLE TRUE)

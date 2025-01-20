@@ -60,7 +60,7 @@ qt_add_resources(appTestBinance "configuration"
         qtquickcontrols2.conf
 )
 
-if if(IOS)  
+if(IOS)  
     qt_add_ios_ffmpeg_libraries(mytarget)
 endif()   
 

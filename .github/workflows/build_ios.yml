@@ -82,21 +82,37 @@ jobs:
           -DQT_NO_FFMPEG_XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY=ON \
           -G Xcode
 
+    - name: Debug Before Build
+      working-directory: ${{github.workspace}}/build
+      run: |
+        echo "Contents of build directory:"
+        ls -la
+        echo "Looking for .xcodeproj files:"
+        find . -name "*.xcodeproj"
+        echo "CMake generated files:"
+        find . -type f -name "CMakeCache.txt" -exec cat {} \;
+
     - name: Build iOS Bundle
       working-directory: ${{github.workspace}}/build
       shell: bash
       timeout-minutes: 30
       run: |
-        xcodebuild -project ${{ env.APP_NAME }}.xcodeproj \
+        XCODEPROJ=$(find . -name "*.xcodeproj" -type d)
+        if [ -z "$XCODEPROJ" ]; then
+          echo "Error: No .xcodeproj found"
+          exit 1
+        fi
+        echo "Found Xcode project: $XCODEPROJ"
+        xcodebuild -project "$XCODEPROJ" \
           -scheme ${{ env.APP_NAME }} \
           -configuration ${{ env.BUILD_TYPE }} \
           -destination generic/platform=iOS \
           build
 
-    - name: Debug Build Directory
+    - name: Debug After Build
       working-directory: ${{github.workspace}}/build
       run: |
-        echo "Build directory contents:"
+        echo "Build directory contents after build:"
         ls -la
         find . -name "*.app" -type d
 

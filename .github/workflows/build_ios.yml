@@ -68,7 +68,12 @@ jobs:
           -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/6.8.0/ios" \
           -DCMAKE_TOOLCHAIN_FILE="${{ env.QT_DIR }}/6.8.0/ios/lib/cmake/Qt6/qt.toolchain.cmake" \
           -DQT_BUILD_IOS=True \
-          -DQT_HOST_PATH="${{ env.QT_DIR }}/6.8.0/macos"
+          -DQT_HOST_PATH="${{ env.QT_DIR }}/6.8.0/macos" \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
+          -DPLATFORM=OS64 \
+          -DENABLE_BITCODE=FALSE \
+          -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO \
+          -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
 
     - name: Build iOS Bundle
       working-directory: ${{github.workspace}}/build

@@ -10,6 +10,7 @@ jobs:
       QT_DIR: ${{ github.workspace }}/Qt
       BUILD_TYPE: Release
       APP_NAME: appTestBinance
+      PROJECT_NAME: TestBinance
 
     steps:
     - uses: actions/checkout@v4
@@ -88,23 +89,20 @@ jobs:
         echo "Contents of build directory:"
         ls -la
         echo "Looking for .xcodeproj files:"
-        find . -name "*.xcodeproj"
-        echo "CMake generated files:"
-        find . -type f -name "CMakeCache.txt" -exec cat {} \;
+        find . -maxdepth 1 -name "*.xcodeproj"
 
     - name: Build iOS Bundle
       working-directory: ${{github.workspace}}/build
       shell: bash
       timeout-minutes: 30
       run: |
-        XCODEPROJ=$(find . -name "*.xcodeproj" -type d)
-        if [ -z "$XCODEPROJ" ]; then
-          echo "Error: No .xcodeproj found"
+        if [ ! -d "${{ env.PROJECT_NAME }}.xcodeproj" ]; then
+          echo "Error: ${{ env.PROJECT_NAME }}.xcodeproj not found"
           exit 1
         fi
-        echo "Found Xcode project: $XCODEPROJ"
-        xcodebuild -project "$XCODEPROJ" \
-          -scheme ${{ env.APP_NAME }} \
+        
+        xcodebuild -project "${{ env.PROJECT_NAME }}.xcodeproj" \
+          -scheme "${{ env.APP_NAME }}" \
           -configuration ${{ env.BUILD_TYPE }} \
           -destination generic/platform=iOS \
           build

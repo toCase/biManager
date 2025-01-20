@@ -26,6 +26,16 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install aqtinstall
 
+    - name: Install Qt (All)
+      shell: bash
+      run: |
+        mkdir -p "${{ env.QT_DIR }}"
+        python -m aqt install-qt \
+          --outputdir "${{ env.QT_DIR }}" \
+          mac desktop \
+          6.8.0 \
+          -m all
+
     - name: Install Qt for iOS
       run: |
         mkdir -p "${{ env.QT_DIR }}"
@@ -49,6 +59,7 @@ jobs:
           -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/6.8.0/ios" \
           -DCMAKE_TOOLCHAIN_FILE="${{ env.QT_DIR }}/6.8.0/ios/lib/cmake/Qt6/qt.toolchain.cmake" \
           -DQT_BUILD_IOS=True
+          -DQT_HOST_PATH="${{ env.QT_DIR }}/6.8.0/macos"
 
     - name: Build iOS Bundle
       working-directory: ${{github.workspace}}/build

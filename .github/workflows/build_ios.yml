@@ -16,6 +16,11 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Install System Dependencies
+      run: |
+        brew update
+        brew install ffmpeg
+
     - name: Install Python and aqtinstall
       uses: actions/setup-python@v4
       with:
@@ -73,33 +78,30 @@ jobs:
           -DPLATFORM=OS64 \
           -DENABLE_BITCODE=FALSE \
           -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO \
-          -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
+          -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
+          -DQT_NO_FFMPEG_XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY=ON \
+          -G Xcode
 
     - name: Build iOS Bundle
       working-directory: ${{github.workspace}}/build
       shell: bash
       timeout-minutes: 30
-      run: cmake --build . --config ${{ env.BUILD_TYPE }} --parallel $(sysctl -n hw.logicalcpu)
+      run: |
+        xcodebuild -project ${{ env.APP_NAME }}.xcodeproj \
+          -scheme ${{ env.APP_NAME }} \
+          -configuration ${{ env.BUILD_TYPE }} \
+          -destination generic/platform=iOS \
+          build
 
     - name: Debug Build Directory
       working-directory: ${{github.workspace}}/build
       run: |
         echo "Build directory contents:"
         ls -la
-
-    - name: Package iOS App
-      working-directory: ${{github.workspace}}/build
-      run: |
-        APP_PATH=$(find . -name "${{ env.APP_NAME }}.app" -type d)
-        if [ -z "$APP_PATH" ]; then
-          echo "Error: .app bundle not found"
-          exit 1
-        fi
-        "${{ env.QT_DIR }}/6.8.0/ios/bin/macdeployqt" "$APP_PATH" \
-          -verbose=2 -qmlimport=${{ github.workspace }}/QML
+        find . -name "*.app" -type d
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.APP_NAME }}-ios
-        path: ${{github.workspace}}/build/**/${{ env.APP_NAME }}.app/
+        path: ${{github.workspace}}/build/**/${{ env.BUILD_TYPE }}-iphoneos/${{ env.APP_NAME }}.app/

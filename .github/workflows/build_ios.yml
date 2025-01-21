@@ -79,9 +79,14 @@ jobs:
           -DIOS_CUSTOM_PLIST_PATH=${{github.workspace}}/ios/Info.plist \
           -G Xcode
 
-    - name: Copy Info.plist
+    - name: Verify Info.plist Configuration
+      working-directory: ${{github.workspace}}/build
       run: |
-        cp ${{github.workspace}}/ios/Info.plist ${{github.workspace}}/build/
+        # Проверяем настройки в проекте Xcode
+        xcrun plutil -convert xml1 -o - "${{ env.PROJECT_NAME }}.xcodeproj/project.pbxproj" | grep -A 5 INFOPLIST_FILE
+        
+        # Показываем путь к используемому Info.plist
+        find . -name "*.pbxproj" -exec grep -l "INFOPLIST_FILE" {} \;
 
     - name: Debug Before Build
       working-directory: ${{github.workspace}}/build
@@ -105,14 +110,29 @@ jobs:
           -scheme "${{ env.APP_NAME }}" \
           -configuration ${{ env.BUILD_TYPE }} \
           -destination generic/platform=iOS \
+          INFOPLIST_FILE="${{github.workspace}}/ios/Info.plist" \
           build
 
+    - name: Verify Final Info.plist
+      working-directory: ${{github.workspace}}/build
+      run: |
+        BUILT_APP_PATH=$(find . -name "*.app" -type d)
+        echo "Built app path: $BUILT_APP_PATH"
+        if [ -f "$BUILT_APP_PATH/Info.plist" ]; then
+          echo "Final Info.plist contents:"
+          plutil -convert xml1 -o - "$BUILT_APP_PATH/Info.plist"
+        else
+          echo "Info.plist not found in built app"
+          exit 1
+        fi
+        
     - name: Debug After Build
       working-directory: ${{github.workspace}}/build
       run: |
         echo "Build directory contents after build:"
         ls -la
         find . -name "*.app" -type d
+      
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4

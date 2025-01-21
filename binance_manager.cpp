@@ -21,6 +21,9 @@ void TaskWorker::processTask(BinanceTask *task)
     case TypeTask::GET_ALL_ORDERS:
         handleGetOrders();
         break;
+    case TypeTask::GET_HISTORY:
+        handleGetHistory(task->params());
+        break;
     default:
         break;
     }
@@ -98,6 +101,40 @@ void TaskWorker::handleGetOrders()
     });
 }
 
+void TaskWorker::handleGetHistory(const QVariantHash &params)
+{
+
+    QStringList queryList;
+    for (auto key : params.keys()){
+        if (params.value(key).toString() == "USDT"){ continue; }
+
+        queryList.append(QString("symbol=%1USDT").arg(params.value(key).toString()));
+    }
+    QString queryString = queryList.join("&");
+
+    QNetworkRequest request = createAuthrizedRequest("/api/v3/allOrders", queryString);
+
+    qDebug() << request.url();
+
+    QNetworkReply *reply = m_manager->get(request);
+    connect(reply, &QNetworkReply::finished, [this, reply](){
+
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray responce = reply->readAll();
+
+            qDebug() << "Response: " << responce.size();
+
+            QJsonDocument jdoc = QJsonDocument::fromJson(responce);
+            emit taskCompleted(m_account->idx(), jdoc, TypeTask::GET_HISTORY);
+        } else {
+            qDebug() << "Response: " << reply->readAll();
+            qDebug() << reply->errorString();
+            emit taskError(m_account->idx(), reply->errorString(), TypeTask::GET_HISTORY);
+        }
+        reply->deleteLater();
+    });
+}
+
 
 BinanceManager::BinanceManager(QObject *parent) : QObject(parent), m_isProcessing(false)
 {
@@ -167,6 +204,10 @@ void BinanceManager::addTask(BinanceTask *task)
 
 void BinanceManager::processNextTask()
 {
+    qDebug() << "-----ActiveAccounts------";
+    for (auto acc : m_accounts) { qDebug() << acc->name(); }
+    qDebug() << "-------------------------";
+
     QMutexLocker locker(&m_queueMutex);
     if (m_taskQueue.isEmpty()) {
         m_isProcessing = false;

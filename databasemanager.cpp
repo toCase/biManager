@@ -25,6 +25,8 @@ void DatabaseManager::load()
 
     DB_VERSION = getDBVersion();
 
+    qDebug() << "DB: " << DB_VERSION;
+
     if (DB_VERSION > 0 && DB_VERSION < VERSION){
         // change db
 
@@ -134,7 +136,11 @@ bool DatabaseWorker::setData(int table, QVariantMap data)
     if (!res) {
         setError(QString("DB Save error: %1").arg(query.lastError().text()));
     } else {
-        setLastId(query.lastInsertId().toInt());
+        if (id == 0) {
+            setLastId(query.lastInsertId().toInt());
+        } else {
+            setLastId(id);
+        }
     }
     return res;
 }

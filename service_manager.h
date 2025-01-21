@@ -13,6 +13,7 @@ public:
 
     void getAccountStatus(int accountID);
     void getAccountOrders(int accountID);
+    void getAccountHistory(int accountID);
 
 signals:
     void readyAccountStatus(int accountID, const QString& status, double balance);
@@ -29,6 +30,7 @@ private:
 
     void processAccountStatus(int accountID, const QJsonDocument& result);
     void processAccountOrders(int accountID, const QJsonDocument& result);
+    void processAccountHistory(int accountID, const QJsonDocument& result);
 
 
 };

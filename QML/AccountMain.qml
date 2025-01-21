@@ -31,6 +31,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.preferredWidth: 140
                 text: "GET HISTORY"
+                onClicked: modelAccount.getHistory()
             }
             MMT_Button {
                 Layout.fillHeight: true
@@ -42,6 +43,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.preferredWidth: 140
                 text: "UPDATE"
+                onClicked: modelAccount.updateModel()
             }
 
             Item {
@@ -199,6 +201,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.preferredWidth: 140
                 text: "DELETE"
+                onClicked: modelAccount.deleteItem()
             }
             Item {
                 Layout.fillWidth: true

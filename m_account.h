@@ -43,6 +43,10 @@ public:
     Q_INVOKABLE void disconnectAll();
     Q_INVOKABLE D_Account *getCard(int row);
     Q_INVOKABLE bool saveItem(QVariantMap card);
+    Q_INVOKABLE void deleteItem();
+    Q_INVOKABLE void updateModel();
+
+    Q_INVOKABLE void getHistory();
 
 private slots:
     void processAccountStatus(int accountID, const QString& status, double balance);

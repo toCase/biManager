@@ -21,6 +21,20 @@ void ServiceManager::getAccountOrders(int accountID)
     m_BinanceManager->addTask(new BinanceTask(TypeTask::GET_ALL_ORDERS, accountID));
 }
 
+void ServiceManager::getAccountHistory(int accountID)
+{
+    QVariantHash filter;
+    filter.insert("acc_id", accountID);
+    QList<D_Asset*> assets = m_DatabaseWorker->getData<D_Asset*>(Tables::ASSETS, filter);
+
+    for (auto card : assets ){
+        QVariantHash params;
+        params.insert("asset", card->asset());
+        m_BinanceManager->addTask(new BinanceTask(TypeTask::GET_HISTORY, accountID, params));
+    }
+
+}
+
 void ServiceManager::handleBinanceResponce(int accountID, const QJsonDocument &result, const TypeTask& tt)
 {
     if (tt == TypeTask::GET_BALANCE) {
@@ -28,6 +42,8 @@ void ServiceManager::handleBinanceResponce(int accountID, const QJsonDocument &r
         processAccountStatus(accountID, result);
     } else if (tt == TypeTask::GET_ALL_ORDERS) {
         processAccountOrders(accountID, result);
+    } else if (tt == TypeTask::GET_HISTORY) {
+        processAccountHistory(accountID, result);
     }
 
 }
@@ -90,5 +106,17 @@ void ServiceManager::processAccountOrders(int accountID, const QJsonDocument &re
     qDebug() << QJsonDocument(result).toJson(QJsonDocument::Compact);
     qDebug() << "-----------------------------------------";
 
+}
+
+void ServiceManager::processAccountHistory(int accountID, const QJsonDocument &result)
+{
+    qDebug() << "ORDERS FROM ACCOUNT ID: " << accountID;
+    QJsonArray res;
+    if (result.isArray()) {
+        res = result.array();
+    }
+    qDebug() << res.size();
+    // qDebug() << QJsonDocument(result).toJson(QJsonDocument::Compact);
+    qDebug() << "-----------------------------------------";
 }
 

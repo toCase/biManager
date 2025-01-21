@@ -38,6 +38,7 @@ private:
 
     void handleGetBalance();
     void handleGetOrders();
+    void handleGetHistory(const QVariantHash& params);
 
 };
 

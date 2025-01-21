@@ -9,16 +9,15 @@ ModelAccount::ModelAccount(BinanceManager *bm, DatabaseWorker *dbw, ServiceManag
 
     DATA.clear();
     QHash<QString, QVariant> filter;
-    DATA = databaseWorker->getData<D_Account*>(1, filter);
+    DATA = databaseWorker->getData<D_Account*>(Tables::ACCOUNTS, filter);
 
 
-    QList<D_Account*> tempList;
     for (auto acc : DATA){
         if (acc->type() == "binance"){
-            tempList.append(acc);
+            CONNECTED_LIST.append(acc);
         }
     }
-    binanceManager->initialize(tempList);
+    binanceManager->initialize(CONNECTED_LIST);
 
     for (auto acc : DATA){
         if (acc->type() == "binance"){
@@ -90,7 +89,7 @@ void ModelAccount::load()
     emit beginResetModel();
     DATA.clear();
     QHash<QString, QVariant> filter;
-    DATA = databaseWorker->getData<D_Account*>(1, filter);
+    DATA = databaseWorker->getData<D_Account*>(Tables::ACCOUNTS, filter);
 
 
     QList<D_Account*> tempList;
@@ -124,11 +123,10 @@ void ModelAccount::connectItem()
         if (acc->selected() && !CONNECTED_LIST.contains(acc) && acc->status() != "Invalid") {
 
             //TODO ONLY BINANCE
+            acc->setSelected(false);
             if (acc->type() == "binance"){
                 acc->setConnected(true);
                 CONNECTED_LIST.append(acc);
-
-
             }
         }
     }
@@ -145,8 +143,10 @@ void ModelAccount::disconnectItem()
     emit beginResetModel();
     for (auto acc : DATA){
         if (acc->selected() && CONNECTED_LIST.contains(acc)) {
+            acc->setSelected(false);
             acc->setConnected(false);
             CONNECTED_LIST.removeOne(acc);
+
         }
     }
     emit changeConnectList(CONNECTED_LIST);
@@ -174,42 +174,95 @@ D_Account* ModelAccount::getCard(int row)
 
 bool ModelAccount::saveItem(QVariantMap card)
 {
-    bool r = databaseWorker->setData(1, card);
+    bool r = databaseWorker->setData(Tables::ACCOUNTS, card);
     if (r){
-        //disconnect all
-        for (auto acc : DATA){
-            if (CONNECTED_LIST.contains(acc)) {
-                acc->setConnected(false);
-            }
-        }
-        CONNECTED_LIST.clear();
+        int id = card.value("id").toInt();
 
-        try {
+        if (id == 0){
+
             // get id
             card.insert("id", databaseWorker->lastId());
             // make acc
             D_Account* acc = new D_Account(card);
             // add acc in model
             DATA.append(acc);
-
-            //get status & balance
-            QList<D_Account*> templist;
-            templist.append(acc);
-            binanceManager->updateAccounts(templist);
-            serviceManager->getAccountStatus(acc->idx());
-        } catch (...) {
-            qDebug() << "ERR";
+            CONNECTED_LIST.append(acc);
+        } else {
+            for (auto acc : DATA) {
+                if (acc->idx() == id) {
+                    acc = new D_Account(card);
+                    CONNECTED_LIST.append(acc);
+                }
+            }
         }
+        // add acc to connected list
+        binanceManager->updateAccounts(CONNECTED_LIST);
+        serviceManager->getAccountStatus(id);
+    }
+    return true;
+}
 
+void ModelAccount::deleteItem()
+{
+
+    bool changeConnected = false;
+    for (auto acc : DATA) {
+        if (acc->selected()) {
+            if (CONNECTED_LIST.contains(acc)){
+                CONNECTED_LIST.removeOne(acc);
+                changeConnected = true;
+            }
+
+            bool r = databaseWorker->delData(Tables::ACCOUNTS, acc->idx());
+            if (!r) {
+                qDebug() << "ACCOUNT DELETE ERROR: " << databaseWorker->error();
+
+            } else {
+                emit beginResetModel();
+                DATA.removeOne(acc);
+
+                emit endResetModel();
+            }
+        }
     }
 
-    // for (auto acc : DATA){
-    //     if (CONNECTED_LIST.contains(acc->idx())) {
-    //         acc->setConnected(false);
-    //         CONNECTED_LIST.removeOne(acc->idx());
-    //     }
-    // }
-    return true;
+    if (changeConnected){ changeConnectList(CONNECTED_LIST); }
+
+}
+
+void ModelAccount::updateModel()
+{
+    CONNECTED_LIST.clear();
+    DATA.clear();
+    QHash<QString, QVariant> filter;
+    DATA = databaseWorker->getData<D_Account*>(1, filter);
+
+
+    for (auto acc : DATA){
+        if (acc->type() == "binance"){
+            CONNECTED_LIST.append(acc);
+        }
+    }
+
+    emit changeConnectList(CONNECTED_LIST);
+
+    for (auto acc : DATA){
+        if (acc->type() == "binance"){
+            serviceManager->getAccountStatus(acc->idx());
+        }
+    }
+
+}
+
+void ModelAccount::getHistory()
+{
+    for (auto acc : DATA) {
+        if (acc->selected()){
+            if (acc->type() == "binance"){
+                serviceManager->getAccountHistory(acc->idx());
+            }
+        }
+    }
 }
 
 void ModelAccount::processAccountStatus(int accountID, const QString &status, double balance)
@@ -219,7 +272,9 @@ void ModelAccount::processAccountStatus(int accountID, const QString &status, do
         if (acc->idx() == accountID) {
             acc->setStatus(status);
             acc->setBalance(QString("USDT: %1").arg(balance));
+            CONNECTED_LIST.removeOne(acc);
         }
     }
+
     emit endResetModel();
 }

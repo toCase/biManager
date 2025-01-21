@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     qSetMessagePattern("[%{time h:mm:ss.zzz}] [%{type}] %{message}");
 
     WebSocket_Manager *websocketManager = new WebSocket_Manager();
-    DatabaseManager *db_manager;
+    DatabaseManager db_manager;
     BinanceManager *binanceManager = new BinanceManager();
     DatabaseWorker *databaseWorker = new DatabaseWorker("app");
     ServiceManager *serviceManager = new ServiceManager(websocketManager, binanceManager, databaseWorker);

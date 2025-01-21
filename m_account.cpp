@@ -22,6 +22,7 @@ ModelAccount::ModelAccount(BinanceManager *bm, DatabaseWorker *dbw, ServiceManag
     for (auto acc : DATA){
         if (acc->type() == "binance"){
             serviceManager->getAccountStatus(acc->idx());
+            statusCount += 1;
         }
     }
 
@@ -198,6 +199,7 @@ bool ModelAccount::saveItem(QVariantMap card)
         // add acc to connected list
         binanceManager->updateAccounts(CONNECTED_LIST);
         serviceManager->getAccountStatus(id);
+        statusCount += 1;
     }
     return true;
 }
@@ -249,6 +251,7 @@ void ModelAccount::updateModel()
     for (auto acc : DATA){
         if (acc->type() == "binance"){
             serviceManager->getAccountStatus(acc->idx());
+            statusCount += 1;
         }
     }
 
@@ -270,11 +273,19 @@ void ModelAccount::processAccountStatus(int accountID, const QString &status, do
     emit beginResetModel();
     for (auto acc : DATA){
         if (acc->idx() == accountID) {
+            qDebug() << "Acc - " << acc->name() << " - getted status";
             acc->setStatus(status);
             acc->setBalance(QString("USDT: %1").arg(balance));
             CONNECTED_LIST.removeOne(acc);
+            statusCount -= 1;
+            qDebug() << "Acc - " << acc->name() << " - delete from CONNECTED";
+            qDebug() << "Acc is waiting count : " << statusCount;
         }
     }
-
     emit endResetModel();
+
+    if (statusCount == 0) {
+        emit changeConnectList(CONNECTED_LIST);
+        qDebug() << "Finish getting status";
+    }
 }

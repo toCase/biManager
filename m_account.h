@@ -30,6 +30,8 @@ private:
     BinanceManager *binanceManager;
     ServiceManager *serviceManager;
 
+    int statusCount = 0;
+
 public:
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;

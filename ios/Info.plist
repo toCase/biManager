@@ -4,41 +4,43 @@
 <dict>
     <key>CFBundleDisplayName</key>
     <string>appTestBinance</string>
-
     <key>CFBundleExecutable</key>
     <string>TestBinance</string>
-
     <key>CFBundleIdentifier</key>
     <string>com.mmtool.appTestBinance</string>
-
     <key>CFBundleName</key>
     <string>TestBinance</string>
-
     <key>CFBundlePackageType</key>
     <string>APPL</string>
-
     <key>CFBundleShortVersionString</key>
     <string>1.0</string>
-
-    <key>CFBundleSignature</key>
-    <string>????</string>
-
     <key>CFBundleVersion</key>
     <string>1.0</string>
-
     <key>LSRequiresIPhoneOS</key>
     <true/>
-
+    <key>MinimumOSVersion</key>
+    <string>17.0</string>
+    <key>UIDeviceFamily</key>
+    <array>
+        <integer>1</integer>
+        <integer>2</integer>
+    </array>
     <key>UILaunchStoryboardName</key>
     <string>LaunchScreen</string>
-
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+    </array>
+    <key>UIRequiresFullScreen</key>
+    <true/>
+    <key>UIStatusBarHidden</key>
+    <true/>
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
         <string>UIInterfaceOrientationLandscapeLeft</string>
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
-
     <key>UISupportedInterfaceOrientations~ipad</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
@@ -46,17 +48,20 @@
         <string>UIInterfaceOrientationLandscapeLeft</string>
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
-
-    <key>UIRequiresFullScreen</key>
-    <true/>
-
-    <key>UIStatusBarHidden</key>
-    <true/>
-
-    <key>MinimumOSVersion</key>
-    <string>17.0</string>
-
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <!-- Добавленные ключи -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true/>
+    <key>UIRequiresFullScreen</key>
+    <true/>
+    <key>UIUserInterfaceStyle</key>
+    <string>Light</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
 </dict>
 </plist>

@@ -19,11 +19,6 @@ if(IOS)
     set(QT_NO_FFMPEG_XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY ON)
 endif()
 
-if(IOS)
-    set_target_properties(app
-        PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist")
-endif()
-
 find_package(Qt6 REQUIRED COMPONENTS Core Quick QuickControls2 WebSockets Sql Network)
 
 qt_standard_project_setup(REQUIRES 6.8)
@@ -69,12 +64,7 @@ qt_add_resources(appTestBinance "configuration"
 
 if(IOS)
     qt_add_ios_ffmpeg_libraries(appTestBinance)
-endif()
-
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-if(IOS)
+    
     set_target_properties(appTestBinance
         PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist")
 endif()

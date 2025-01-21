@@ -11,9 +11,6 @@ set(CMAKE_AUTOUIC ON)
 if(IOS)
     set(CMAKE_SYSTEM_NAME iOS)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "17.0")
-    #set(CMAKE_OSX_ARCHITECTURES "arm64")
-    # Отключаем создание bundle для iOS
-    set(CMAKE_MACOSX_BUNDLE TRUE)
     # Устанавливаем тип компоновки
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
     set(QT_NO_FFMPEG_XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY ON)
@@ -63,19 +60,19 @@ qt_add_resources(appTestBinance "configuration"
 )
 
 if(IOS)
-    qt_add_ios_ffmpeg_libraries(appTestBinance)
-    
-    set_target_properties(appTestBinance
-        PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist")
+    qt_add_ios_ffmpeg_libraries(appTestBinance)        
 endif()
 
 set_target_properties(appTestBinance PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.appTestBinance
+    MACOSX_BUNDLE_GUI_IDENTIFIER com.mmtool.appTestBinance
+    PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist")
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+
 
 target_link_libraries(appTestBinance
     PRIVATE Qt6::Quick

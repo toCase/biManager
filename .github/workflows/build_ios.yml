@@ -27,11 +27,11 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install aqtinstall
 
-    - name: Cache Qt
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.QT_DIR }}
-        key: ${{ runner.os }}-qt-6.8.0-${{ hashFiles('**/CMakeLists.txt') }}
+    # - name: Cache Qt
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: ${{ env.QT_DIR }}
+    #     key: ${{ runner.os }}-qt-6.8.0-${{ hashFiles('**/CMakeLists.txt') }}
 
     - name: Install Qt (All)
       shell: bash

@@ -76,7 +76,12 @@ jobs:
           -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO \
           -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
           -DQT_NO_FFMPEG_XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY=ON \
+          -DIOS_CUSTOM_PLIST_PATH=${{github.workspace}}/ios/Info.plist \
           -G Xcode
+
+    - name: Copy Info.plist
+      run: |
+        cp ${{github.workspace}}/ios/Info.plist ${{github.workspace}}/build/
 
     - name: Debug Before Build
       working-directory: ${{github.workspace}}/build

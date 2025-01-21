@@ -73,8 +73,6 @@ set_target_properties(appTestBinance PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-
-
 target_link_libraries(appTestBinance
     PRIVATE Qt6::Quick
     PRIVATE Qt6::QuickControls2

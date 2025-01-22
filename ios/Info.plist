@@ -5,7 +5,7 @@
     <key>CFBundleDisplayName</key>
     <string>appTestBinance</string>
     <key>CFBundleExecutable</key>
-    <string>TestBinance</string>
+    <string>appTestBinance</string>
     <key>CFBundleIdentifier</key>
     <string>com.mmtool.appTestBinance</string>
     <key>CFBundleName</key>

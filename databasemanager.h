@@ -4,6 +4,8 @@
 #include <QtSql/QtSql>
 #include <QCoreApplication>
 #include <QDir>
+#include <QFileInfo>
+#include <QStandardPaths>
 
 #include "app_namespaces.h"
 #include "db_mapper.h"

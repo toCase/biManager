@@ -182,9 +182,11 @@ bool ModelAccount::saveItem(QVariantMap card)
         if (id == 0){
 
             // get id
-            card.insert("id", databaseWorker->lastId());
+            id = databaseWorker->lastId();
+            card.insert("id", id);
             // make acc
             D_Account* acc = new D_Account(card);
+            qDebug() << "Acc ID: " << acc->idx();
             // add acc in model
             DATA.append(acc);
             CONNECTED_LIST.append(acc);
@@ -193,21 +195,26 @@ bool ModelAccount::saveItem(QVariantMap card)
                 if (acc->idx() == id) {
                     acc = new D_Account(card);
                     CONNECTED_LIST.append(acc);
+                    qDebug() << "Acc ID: " << acc->idx();
                 }
             }
         }
         // add acc to connected list
         binanceManager->updateAccounts(CONNECTED_LIST);
-        serviceManager->getAccountStatus(id);
         statusCount += 1;
+        serviceManager->getAccountStatus(id);
+
     }
     return true;
 }
 
 void ModelAccount::deleteItem()
 {
-
+    emit beginResetModel();
     bool changeConnected = false;
+
+    QList<D_Account*> del_list;
+
     for (auto acc : DATA) {
         if (acc->selected()) {
             if (CONNECTED_LIST.contains(acc)){
@@ -215,19 +222,21 @@ void ModelAccount::deleteItem()
                 changeConnected = true;
             }
 
+            del_list.append(acc);
+
             bool r = databaseWorker->delData(Tables::ACCOUNTS, acc->idx());
             if (!r) {
                 qDebug() << "ACCOUNT DELETE ERROR: " << databaseWorker->error();
-
-            } else {
-                emit beginResetModel();
-                DATA.removeOne(acc);
-
-                emit endResetModel();
+                del_list.removeOne(acc);
             }
         }
     }
 
+    for (auto acc : del_list) {
+        DATA.removeOne(acc);
+    }
+
+    emit endResetModel();
     if (changeConnected){ changeConnectList(CONNECTED_LIST); }
 
 }

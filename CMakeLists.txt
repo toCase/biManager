@@ -11,10 +11,10 @@ set(CMAKE_AUTOUIC ON)
 if(IOS)
     set(CMAKE_SYSTEM_NAME iOS)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "17.0")
-    # Устанавливаем тип компоновки
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
     set(QT_NO_FFMPEG_XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY ON)
 endif()
+
 
 find_package(Qt6 REQUIRED COMPONENTS Core Quick QuickControls2 WebSockets Sql Network)
 
@@ -50,6 +50,7 @@ qt_add_qml_module(appTestBinance
         QML_FILES QML/Controls/MMT_Button.qml
         QML_FILES QML/const.js
         RESOURCES ios/Info.plist
+        SOURCES d_order.h d_order.cpp
 )
 
 # Добавляем qtquickcontrols2.conf в ресурсы
@@ -60,7 +61,7 @@ qt_add_resources(appTestBinance "configuration"
 )
 
 if(IOS)
-    qt_add_ios_ffmpeg_libraries(appTestBinance)        
+    qt_add_ios_ffmpeg_libraries(appTestBinance)
 endif()
 
 set_target_properties(appTestBinance PROPERTIES
@@ -74,7 +75,6 @@ set_target_properties(appTestBinance PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-# Добавьте эти строки для принудительного использования вашего Info.plist
 set_target_properties(appTestBinance PROPERTIES
     XCODE_ATTRIBUTE_GENERATE_INFOPLIST_FILE NO
     XCODE_ATTRIBUTE_INFOPLIST_PREPROCESS NO

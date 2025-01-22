@@ -10,7 +10,19 @@ DatabaseManager::DatabaseManager(QObject *parent)
         db = QSqlDatabase::addDatabase("QMARIADB");
         // setting for connect to MARIA
     } else {
-        QString filePath = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/db.db3");
+        QString filePath;
+#ifdef Q_OS_IOS
+        filePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/db.db3";
+#else
+        filePath = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/db.db3");
+#endif
+
+        // test dir
+        QFileInfo fileInfo(filePath);
+        QDir dir = fileInfo.dir();
+        if (!dir.exists()) {
+            dir.mkpath(".");
+        }
         db = QSqlDatabase::addDatabase("QSQLITE", "app");
         db.setDatabaseName(filePath);
         db.open();
@@ -35,6 +47,10 @@ void DatabaseManager::load()
                          "name TEXT, type TEXT, api TEXT, secret TEXT);");
 
         queryList.append("CREATE TABLE IF NOT EXISTS AccountAssets (acc_id INTEGER, asset TEXT, amount TEXT, price TEXT);");
+
+        queryList.append("CREATE TABLE IF NOT EXISTS Orders (order_id TEXT UNIQUE, acc_id INTEGER, create_time TEXT, symbol TEXT, "
+                         "order_type TEXT, order_side TEXT, order_price TEXT, exec_qty TEXT, cum_qty TEXT, order_fee TEXT, "
+                         "order_status TEXT, order_stop_price TEXT);");
 
         // create all actual tables
 
@@ -78,22 +94,30 @@ int DatabaseManager::getDBVersion()
 DatabaseWorker::DatabaseWorker(QString connection, QObject *parent): QObject{parent} {
     NET = false; //settingManager.get("database", "net").toBool();
 
-    if (NET){
-        db = QSqlDatabase::addDatabase("QMARIADB");
-        // setting for connect to MARIA
-    } else {
-        QString filePath = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/db.db3");
-        db = QSqlDatabase::addDatabase("QSQLITE", connection);
-        db.setDatabaseName(filePath);
-        db.open();
+    QString filePath;
+#ifdef Q_OS_IOS
+    filePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/db.db3";
+#else
+    filePath = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/db.db3");
+#endif
+
+    // test dir
+    QFileInfo fileInfo(filePath);
+    QDir dir = fileInfo.dir();
+    if (!dir.exists()) {
+        dir.mkpath(".");
     }
+    db = QSqlDatabase::addDatabase("QSQLITE", connection);
+    db.setDatabaseName(filePath);
+    db.open();
+
 }
 
 bool DatabaseWorker::setData(int table, QVariantMap data)
 {
     if (!db.isOpen()) return false;
 
-    int id = data.value("id").toInt();
+    int id = data.value("id", 0).toInt();
     QSqlQuery query(db);
     if (id == 0) {
         switch (table) {
@@ -130,6 +154,26 @@ bool DatabaseWorker::setData(int table, QVariantMap data)
         query.bindValue(":asset", data.value("asset"));
         query.bindValue(":amount", data.value("amount"));
         query.bindValue(":price", data.value("price"));
+    }
+
+    if (table == Tables::ORDERS) {
+        query.prepare(R"(INSERT OR REPLACE INTO Orders (order_id, acc_id, create_time, symbol, "
+                         "order_type, order_side, order_price, exec_qty, cum_qty, order_fee, "
+                         "order_status, order_stop_price) VALUES (:order_id, :acc_id, :create_time, :symbol, "
+                         ":order_type, :order_side, :order_price, :exec_qty, :cum_qty, :order_fee, "
+                         ":order_status, :order_stop_price))");
+        query.bindValue(":order_id", data.value("order_id"));
+        query.bindValue(":acc_id", data.value("acc_id"));
+        query.bindValue(":create_time", data.value("create_time"));
+        query.bindValue(":symbol", data.value("symbol"));
+        query.bindValue(":order_type", data.value("order_type"));
+        query.bindValue(":order_side", data.value("order_side"));
+        query.bindValue(":order_price", data.value("order_price"));
+        query.bindValue(":exec_qty", data.value("exec_qty"));
+        query.bindValue(":cum_qty", data.value("cum_qty"));
+        query.bindValue(":order_fee", data.value("order_fee"));
+        query.bindValue(":order_status", data.value("order_status"));
+        query.bindValue(":order_stop_price", data.value("order_stop_price"));
     }
 
     bool res = query.exec();    

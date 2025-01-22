@@ -50,11 +50,12 @@ void ServiceManager::handleBinanceResponce(int accountID, const QJsonDocument &r
 
 void ServiceManager::handleBinanceError(int accountID, const QString &error, const TypeTask &tt)
 {
-    qDebug() << "Task error for account: " << accountID << " : " << error;
     if (tt == TypeTask::GET_BALANCE) {
         emit readyAccountStatus(accountID, "Invalid", 0.00);
-    } if (tt == TypeTask::GET_ALL_ORDERS) {
+    } else if (tt == TypeTask::GET_ALL_ORDERS) {
         qDebug() << "GET ORDER ACCOUNT ID: " << accountID << " ERROR: " << error;
+    } else if (tt == TypeTask::GET_HISTORY) {
+        qDebug() << "GET HISTORY ACCOUNT ID: " << accountID << " ERROR: " << error;
     }
 }
 
@@ -66,7 +67,7 @@ void ServiceManager::processAccountStatus(int accountID, const QJsonDocument &re
     QJsonObject res = result.object();
 
 
-    if (!res.contains("balance") || res["balances"].isArray()) {
+    if (!res.contains("balances") || !res["balances"].isArray()) {
         emit readyAccountStatus(accountID, status, balance);
     }
 
@@ -111,11 +112,37 @@ void ServiceManager::processAccountOrders(int accountID, const QJsonDocument &re
 void ServiceManager::processAccountHistory(int accountID, const QJsonDocument &result)
 {
     qDebug() << "ORDERS FROM ACCOUNT ID: " << accountID;
-    QJsonArray res;
-    if (result.isArray()) {
-        res = result.array();
+    // QJsonArray res;
+    if (!result.isArray()) { return; }
+    qDebug() << "SAVING ORDERS: " << accountID;
+
+    QJsonArray arr = result.array();
+    // res = result.array();
+    for (const QJsonValue& item : arr) {
+        QJsonObject item_obj = item.toObject();
+
+        qDebug() << "ORDER TEST: " << item_obj.value("orderId").toString();
+
+
+        // D_Order order(
+        //     item_obj.value("orderId").toString(),
+        //     accountID,
+        //     item_obj.value("time").toString(),
+        //     item_obj.value("symbol").toString(),
+        //     item_obj.value("type").toString(),
+        //     item_obj.value("side").toString(),
+        //     item_obj.value("price").toString(),
+        //     item_obj.value("executedQty").toString(),
+        //     item_obj.value("cummulativeQuoteQty").toString(),
+        //     "0.00",
+        //     item_obj.value("status").toString(),
+        //     item_obj.value("stopPrice").toString()
+        //     );
+        // qDebug() << "ORDER TEST: " << order.orderId();
+        // bool r = m_DatabaseWorker->setData(Tables::ORDERS, order.getMap());
+        // qDebug() << "ORDER ID: " << item_obj["orderId"].toString();
     }
-    qDebug() << res.size();
+    qDebug() << result.array().size();
     // qDebug() << QJsonDocument(result).toJson(QJsonDocument::Compact);
     qDebug() << "-----------------------------------------";
 }

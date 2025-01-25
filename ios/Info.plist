@@ -63,5 +63,71 @@
     <string>en</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
+    <key>UILaunchImages</key>
+    <array>
+        <dict>
+            <key>UILaunchImageMinimumOSVersion</key>
+            <string>17.0</string>
+            <key>UILaunchImageName</key>
+            <string>LaunchImage-iOS</string>
+            <key>UILaunchImageOrientation</key>
+            <string>Portrait</string>
+            <key>UILaunchImageSize</key>
+            <string>{320, 568}</string>
+        </dict>
+        <dict>
+            <key>UILaunchImageMinimumOSVersion</key>
+            <string>17.0</string>
+            <key>UILaunchImageName</key>
+            <string>LaunchImage-iOS</string>
+            <key>UILaunchImageOrientation</key>
+            <string>Portrait</string>
+            <key>UILaunchImageSize</key>
+            <string>{320, 480}</string>
+        </dict>
+    </array>
+    <key>UILaunchImages~ipad</key>
+    <array>
+        <dict>
+            <key>UILaunchImageMinimumOSVersion</key>
+            <string>17.0</string>
+            <key>UILaunchImageName</key>
+            <string>LaunchImage-iOS-Landscape</string>
+            <key>UILaunchImageOrientation</key>
+            <string>Landscape</string>
+            <key>UILaunchImageSize</key>
+            <string>{768, 1024}</string>
+        </dict>
+        <dict>
+            <key>UILaunchImageMinimumOSVersion</key>
+            <string>17.0</string>
+            <key>UILaunchImageName</key>
+            <string>LaunchImage-iOS-Portrait</string>
+            <key>UILaunchImageOrientation</key>
+            <string>Portrait</string>
+            <key>UILaunchImageSize</key>
+            <string>{768, 1024}</string>
+        </dict>
+        <dict>
+            <key>UILaunchImageMinimumOSVersion</key>
+            <string>17.0</string>
+            <key>UILaunchImageName</key>
+            <string>LaunchImage-iOS</string>
+            <key>UILaunchImageOrientation</key>
+            <string>Portrait</string>
+            <key>UILaunchImageSize</key>
+            <string>{320, 568}</string>
+        </dict>
+        <dict>
+            <key>UILaunchImageMinimumOSVersion</key>
+            <string>17.0</string>
+            <key>UILaunchImageName</key>
+            <string>LaunchImage-iOS</string>
+            <key>UILaunchImageOrientation</key>
+            <string>Portrait</string>
+            <key>UILaunchImageSize</key>
+            <string>{320, 480}</string>
+        </dict>
+    </array>
 </dict>
 </plist>

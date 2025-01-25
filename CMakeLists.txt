@@ -94,7 +94,7 @@ if (IOS)
     set_source_files_properties(${ios_assets_dir} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     set_source_files_properties(${ios_launch_screen} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    add_custom_command(TARGET appTestBinance POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${ios_assets_dir} ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}/Assets.xcassets
         COMMAND ${CMAKE_COMMAND} -E copy ${ios_launch_screen} ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}/LaunchScreen.storyboard
     )

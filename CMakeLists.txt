@@ -51,6 +51,9 @@ qt_add_qml_module(appTestBinance
         QML_FILES QML/const.js
         RESOURCES ios/Info.plist
         SOURCES d_order.h d_order.cpp
+        RESOURCES ios/LaunchScreen.storyboard
+        RESOURCES ios/Assets.xcassets/AppIcon.appiconset/AppIcon1024x1024.png
+        QML_FILES ios/Assets.xcassets/AppIcon.appiconset/Contents.json
 )
 
 # Добавляем qtquickcontrols2.conf в ресурсы
@@ -84,21 +87,21 @@ set_target_properties(appTestBinance PROPERTIES
     XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS YES
     XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH YES
     XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
-    QT_IOS_LAUNCH_SCREEN "${CMAKE_CURRENT_SOURCE_DIR}/ios/LaunchScreen/Launch.storyboard"
+    QT_IOS_LAUNCH_SCREEN "${CMAKE_CURRENT_SOURCE_DIR}/ios/LaunchScreen.storyboard"
 )
 
-if (IOS)
-    set(ios_assets_dir ${CMAKE_SOURCE_DIR}/ios/Assets.xcassets)
-    set(ios_launch_screen ${CMAKE_SOURCE_DIR}/ios/LaunchScreen/Launch.storyboard)
+# if (IOS)
+#     set(ios_assets_dir ${CMAKE_CURRENT_SOURCE_DIR}/ios/Assets.xcassets)
+#     set(ios_launch_screen ${CMAKE_CURRENT_SOURCE_DIR}/ios/LaunchScreen/Launch.storyboard)
 
-    set_source_files_properties(${ios_assets_dir} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-    set_source_files_properties(${ios_launch_screen} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+#     set_source_files_properties(${ios_assets_dir} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+#     set_source_files_properties(${ios_launch_screen} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
-    add_custom_command(TARGET appTestBinance POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${ios_assets_dir} ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}/Assets.xcassets
-        COMMAND ${CMAKE_COMMAND} -E copy ${ios_launch_screen} ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}/LaunchScreen.storyboard
-    )
-endif()
+#     add_custom_command(TARGET appTestBinance POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy_directory ${ios_assets_dir} ${CMAKE_INSTALL_BINDIR}/Assets.xcassets
+#         COMMAND ${CMAKE_COMMAND} -E copy ${ios_launch_screen} ${CMAKE_INSTALL_BINDIR}/LaunchScreen.storyboard
+#     )
+# endif()
 
 target_link_libraries(appTestBinance
     PRIVATE Qt6::Quick

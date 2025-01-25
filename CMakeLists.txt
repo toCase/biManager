@@ -68,6 +68,8 @@ if(IOS)
     qt_add_ios_ffmpeg_libraries(appTestBinance)
 endif()
 
+
+
 set_target_properties(appTestBinance PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
@@ -100,6 +102,16 @@ target_link_libraries(appTestBinance
     PRIVATE Qt6::Core
     PRIVATE Qt6::Sql
     PRIVATE Qt6::Network
+)
+
+# Добавление Assets.xcassets в ресурсы
+target_sources(appTestBinance PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/ios/Assets.xcassets"
+)
+
+set_source_files_properties(
+    "${CMAKE_CURRENT_SOURCE_DIR}/ios/Assets.xcassets"
+    PROPERTIES MACOSX_PACKAGE_LOCATION "Resources"
 )
 
 include(GNUInstallDirs)

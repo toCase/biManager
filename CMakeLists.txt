@@ -53,7 +53,7 @@ qt_add_qml_module(appTestBinance
         SOURCES d_order.h d_order.cpp
         RESOURCES ios/LaunchScreen.storyboard
         RESOURCES ios/Assets.xcassets/AppIcon.appiconset/AppIcon1024x1024.png
-        QML_FILES ios/Assets.xcassets/AppIcon.appiconset/Contents.json
+        RESOURCES ios/Assets.xcassets/AppIcon.appiconset/Contents.json
 )
 
 # Добавляем qtquickcontrols2.conf в ресурсы
